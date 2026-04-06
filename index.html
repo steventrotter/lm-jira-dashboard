@@ -122,16 +122,26 @@
     transition: border-color .15s, transform .1s;
   }
   .card:last-child { margin-bottom: 0; }
-  .card:hover { border-color: var(--orange); transform: translateY(-1px); }
+  .card:hover { border-color: var(--teal); transform: translateY(-1px); }
   .card.blocked { border-color: #e53935 !important; }
   .card.blocked:hover { border-color: #ff5252 !important; }
 
-  /* Row 1: key | priority + status + avatar */
+  /* Blocked badge */
+  .badge-blocked {
+    font-size: 9px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; border-radius: 4px;
+    padding: 2px 6px; white-space: nowrap;
+    background: rgba(229,57,53,.25); color: #ff5252;
+    border: 1px solid rgba(229,57,53,.45);
+  }
+
+  /* Row 1: key + blocked badge | priority + status + avatar */
   .card-top {
     display: flex; align-items: center; justify-content: space-between;
     gap: 6px; margin-bottom: 4px;
   }
   .card-key { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .card-key-group { display: flex; align-items: center; gap: 6px; min-width: 0; }
   .card-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 
   /* Row 2: summary */
@@ -201,7 +211,7 @@
 <body>
 
 <script>
-const VERSION = 'v2.1.0';
+const VERSION = 'v2.2.0';
 const WORKER  = 'https://lm-jira-proxy.hey-c75.workers.dev';
 const PROJS   = 'SUP,PRO,LC';
 const REFRESH = 60000;
@@ -371,19 +381,21 @@ function sorted(issues, mode) {
 
 // ── Card HTML ──
 // Layout (2 rows):
-//   [key]        [dot] [Priority] [Status pill] [Avatar]
+//   [key] [BLOCKED?]        [dot] [Priority] [Status pill] [Avatar]
 //   Summary text
 function cardHTML(issue) {
-  const f     = issue.fields;
-  const asgn  = f.assignee;
-  const av    = asgn
+  const f      = issue.fields;
+  const asgn   = f.assignee;
+  const av     = asgn
     ? `<span class="avatar" style="background:${avatarColor(asgn.displayName)}">${initials(asgn.displayName)}</span>`
     : '';
-  const blocked = isBlocked(f) ? ' blocked' : '';
+  const blocked    = isBlocked(f);
+  const blockedCls = blocked ? ' blocked' : '';
+  const blockedBadge = blocked ? `<span class="badge-blocked">Blocked</span>` : '';
   return `
-    <div class="card${blocked}" onclick="openTicket('${issue.key}')">
+    <div class="card${blockedCls}" onclick="openTicket('${issue.key}')">
       <div class="card-top">
-        <span class="card-key">${issue.key}</span>
+        <div class="card-key-group">${'<span class="card-key">' + issue.key + '</span>'}${blockedBadge}</div>
         <div class="card-right">${priHTML(f.priority)}${pill(f.status)}${av}</div>
       </div>
       <div class="card-sum">${f.summary || ''}</div>
