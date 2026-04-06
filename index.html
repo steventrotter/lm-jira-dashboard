@@ -1,765 +1,498 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="LM Jira">
-  <title>LM · Jira Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>LM · Jira Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:      #2d3035;
-      --bg-dark: #22252a;
-      --bg-mid:  #272b30;
-      --border:  rgba(255,255,255,0.07);
-      --orange:  #f05223;
-      --teal:    #00b9ae;
-      --text:    #f5f5f2;
-      --muted:   #f5f5f2;
-      --dim:     #c9c5c0;
-    }
+  :root {
+    --bg:        #2d3035;
+    --bg-dark:   #22252a;
+    --bg-mid:    #272b30;
+    --orange:    #f05223;
+    --teal:      #00b9ae;
+    --text:      #f5f5f2;
+    --muted:     #f5f5f2;
+    --dim:       #c9c5c0;
+    --card-bg:   #32363c;
+    --card-bdr:  #3e4349;
+    --radius:    7px;
+  }
 
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      font-family: 'Poppins', system-ui, sans-serif;
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      overflow: hidden;
-    }
+  html, body { height: 100%; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
 
-    #dash {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
+  .app { display: flex; flex-direction: column; height: 100vh; }
 
-    /* Header */
-    .dh {
-      background: var(--bg-dark);
-      padding: 11px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
+  /* HEADER */
+  .hdr {
+    background: var(--bg-dark);
+    padding: 9px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+    border-bottom: 2px solid var(--orange);
+  }
+  .hdr-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hdr-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--dim); }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+  .sync-dot.stale { background: #777; }
+  .sync-label { white-space: nowrap; }
+  .btn-refresh {
+    background: var(--orange); color: #fff; border: none; border-radius: 5px;
+    padding: 5px 11px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600;
+    cursor: pointer; letter-spacing: .04em; transition: opacity .15s;
+  }
+  .btn-refresh:hover { opacity: .85; }
 
-    .dh-l { display: flex; align-items: center; gap: 9px; }
+  /* STATS */
+  .stats {
+    background: var(--bg-mid);
+    padding: 6px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--dim);
+    flex-wrap: wrap;
+  }
+  .stat { display: flex; align-items: center; gap: 5px; }
+  .stat-val { font-weight: 700; font-size: 13px; color: var(--text); }
+  .stat-div { width: 1px; height: 13px; background: #444; }
+  .sprint-lbl { margin-left: auto; font-size: 10px; color: var(--dim); font-style: italic; }
 
-    .dh-title {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
+  /* COLUMNS */
+  .cols {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    grid-auto-rows: 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+  .col-wrap { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .col-wrap.prod-wrap { border-right: 1px solid #3a3e44; }
 
-    .dh-r { display: flex; align-items: center; gap: 8px; }
+  /* COLUMN HEADER */
+  .col-hdr {
+    padding: 9px 14px 7px;
+    background: var(--bg-dark);
+    border-bottom: 2px solid var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .col-hdr-left { display: flex; flex-direction: column; gap: 1px; }
+  .col-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .col-count {
+    background: #3e4349; color: var(--dim);
+    font-size: 9.5px; font-weight: 600;
+    border-radius: 10px; padding: 1px 6px;
+  }
+  .col-sub { font-size: 9.5px; color: var(--dim); font-style: italic; }
+  .col-sort { display: flex; gap: 4px; }
+  .sort-btn {
+    background: none; border: 1px solid #3e4349; border-radius: 4px;
+    color: var(--dim); width: 25px; height: 25px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: border-color .15s, color .15s; font-size: 12px;
+  }
+  .sort-btn:hover { border-color: var(--orange); color: var(--text); }
+  .sort-btn.active { border-color: var(--orange); color: var(--orange); }
+  .col-wrap.audit-wrap .sort-btn.active { border-color: var(--teal); color: var(--teal); }
 
-    .bdot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .bdot-o { background: var(--orange); }
+  /* SCROLL AREA */
+  .col { overflow-y: auto; flex: 1; padding: 9px 11px; min-height: 0; }
+  .col::-webkit-scrollbar { width: 4px; }
+  .col::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
 
-    .sync-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--dim);
-      flex-shrink: 0;
-    }
+  /* CARD */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-bdr);
+    border-radius: var(--radius);
+    padding: 8px 11px 7px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: border-color .15s, transform .1s;
+  }
+  .card:last-child { margin-bottom: 0; }
+  .card:hover { border-color: var(--orange); transform: translateY(-1px); }
 
-    .sync-dot.busy { background: #f0a023; }
-    .sync-dot.ok   { background: var(--teal); }
-    .sync-dot.err  { background: #ef7070; }
+  /* Card row 1: key | status + avatar */
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+  .card-key { font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .card-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 
-    .sync-lbl { font-size: 14px; color: var(--dim); }
+  /* Card row 2: summary */
+  .card-sum {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
 
-    .hdr-btn {
-      background: none;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-family: inherit;
-      font-size: 14px;
-      color: var(--dim);
-      cursor: pointer;
-    }
+  /* Card row 3: priority */
+  .card-meta { display: flex; align-items: center; gap: 5px; }
 
-    .hdr-btn:active { opacity: 0.7; }
+  /* STATUS PILLS */
+  .pill {
+    font-size: 9px; font-weight: 600; letter-spacing: .05em;
+    text-transform: uppercase; border-radius: 4px; padding: 2px 6px; white-space: nowrap;
+  }
+  .p-todo    { background: rgba(150,150,160,.35); color: #fff; }
+  .p-inprog  { background: rgba(0,185,174,.22); color: var(--teal); }
+  .p-done    { background: rgba(55,170,90,.22); color: #5ec97a; }
+  .p-review  { background: rgba(140,90,200,.22); color: #b07de8; }
+  .p-blocked { background: rgba(220,60,60,.22); color: #f07070; }
+  .p-def     { background: rgba(120,120,130,.18); color: var(--dim); }
 
-    /* Stats Bar */
-    .sb {
-      background: var(--bg-mid);
-      padding: 7px 18px;
-      display: flex;
-      gap: 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      flex-shrink: 0;
-      align-items: center;
-    }
+  /* PRIORITY */
+  .pri-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .pri-highest { background: #e53935; }
+  .pri-high    { background: var(--orange); }
+  .pri-medium  { background: #f5a623; }
+  .pri-low     { background: #78909c; }
+  .pri-lowest  { background: #546e7a; }
+  .pri-lbl { font-size: 10px; color: var(--dim); }
 
-    .st { display: flex; align-items: center; gap: 6px; }
-    .sn { font-size: 16px; font-weight: 600; }
-    .sl { font-size: 14px; color: var(--dim); }
+  /* AVATAR */
+  .avatar {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8.5px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
 
-    .sb-div { width: 1px; height: 14px; background: rgba(255,255,255,0.08); }
+  /* STATES */
+  .state-msg { padding: 20px 0; text-align: center; font-size: 11.5px; color: var(--dim); }
 
-    .sprint-name {
-      font-size: 14px;
-      color: var(--dim);
-      margin-left: auto;
-      font-style: italic;
-    }
+  .err-screen {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100vh; gap: 10px; text-align: center; padding: 24px;
+  }
+  .err-screen h1 { font-size: 20px; color: var(--orange); }
+  .err-screen p  { font-size: 13px; color: var(--dim); max-width: 440px; line-height: 1.6; }
 
-    /* col-wrap: fixed header + scrollable content, immune to JS innerHTML replacement */
-    .col-wrap {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
+  /* MOBILE */
+  @media (max-width: 768px) {
+    html, body { overflow: auto; height: auto; }
+    .app { height: auto; overflow: visible; }
 
-    .col-wrap.prod-wrap { border-right: 1px solid var(--border); }
+    .hdr { padding: 8px 12px; }
+    .sync-label { display: none; }
+    .btn-refresh { padding: 4px 9px; font-size: 10.5px; }
 
-    /* Column Headers */
-    .col-hdr {
-      padding: 9px 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
+    .stats { padding: 5px 12px; gap: 10px; }
+    .stat-div { display: none; }
+    .sprint-lbl { width: 100%; margin-left: 0; }
 
-    .col-hdr.prod {
-      border-bottom: 2px solid var(--orange);
-      border-right: 1px solid var(--border);
-    }
-
-    .col-hdr.audit { border-bottom: 2px solid var(--orange); }
-
-    .col-hdr-title {
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-    }
-
-    .col-hdr-count {
-      font-size: 14px;
-      color: var(--dim);
-      background: rgba(255,255,255,0.06);
-      padding: 1px 7px;
-      border-radius: 10px;
-    }
-
-    /* Columns */
     .cols {
-      display: grid;
-      grid-template-columns: 3fr 2fr;
-      grid-auto-rows: 1fr;
-      flex: 1;
-      overflow: hidden;
-      min-height: 0;
-    }
-
-    .col {
-      overflow-y: auto;
-      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 7px;
-      flex: 1;
+      flex: none;
+      grid-auto-rows: auto;
     }
+    .col-wrap { flex: none; min-height: 0; overflow: visible; }
+    .col { overflow-y: visible; flex: none; padding: 7px 10px; }
 
-    .col::-webkit-scrollbar { width: 3px; }
-    .col::-webkit-scrollbar-track { background: transparent; }
-    .col::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
-
-    .col-meta {
-      font-size: 12px;
-      color: var(--dim);
-      font-style: italic;
-      padding: 0 2px 2px;
-      flex-shrink: 0;
-    }
-
-    /* Cards */
-    .card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 8px;
-      padding: 11px 13px;
-      cursor: pointer;
-      text-decoration: none;
-      display: block;
-      flex-shrink: 0;
-      transition: background 0.1s;
-    }
-
-    .card:active { background: rgba(255,255,255,0.09); }
-
-    .card-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-
-    .card-key {
-      color: #f5f5f2;
-      font-size: 14px;
-      font-family: monospace;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-    }
-
-    .card-title {
-      font-size: 15px;
-      color: #dddad4;
-      line-height: 1.45;
-      margin-bottom: 8px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .card-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-l { display: flex; align-items: center; gap: 6px; }
-    .card-r { display: flex; align-items: center; gap: 7px; }
-
-    .proj {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 1px 6px;
-      border-radius: 4px;
-      letter-spacing: 0.04em;
-    }
-
-    .proj-SUP { background: rgba(122,110,240,0.2);  color: #9d93f5; }
-    .proj-PRO { background: rgba(240,82,35,0.18);   color: #f07a5a; }
-    .proj-LC  { background: rgba(0,185,174,0.15);   color: var(--teal); }
-
-    .pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .plbl { font-size: 12px; color: var(--dim); }
-    .tago { font-size: 12px; color: var(--dim); }
-
-    .av {
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .pill { font-size: 12px; padding: 2px 8px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
-    .p-new      { background: rgba(255,255,255,0.13); color: #f5f5f2; }
-    .p-progress { background: rgba(0,185,174,0.15);   color: var(--teal); }
-    .p-done     { background: rgba(34,197,94,0.13);   color: #3eda7e; }
-
-    /* Skeletons */
-    .skel {
-      background: rgba(255,255,255,0.05);
-      border-radius: 8px;
-      flex-shrink: 0;
-      animation: pulse 1.6s ease-in-out infinite;
-    }
-
-    .skel:nth-child(2) { animation-delay: 0.15s; }
-    .skel:nth-child(3) { animation-delay: 0.3s;  }
-    .skel:nth-child(4) { animation-delay: 0.45s; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.35; }
-      50%       { opacity: 0.65; }
-    }
-
-    .msg {
-      text-align: center;
-      padding: 36px 20px;
-      color: var(--dim);
-      font-size: 15px;
-      line-height: 1.7;
-    }
-
-    .msg strong {
-      display: block;
-      color: var(--muted);
-      font-weight: 500;
-      margin-bottom: 4px;
-      font-size: 16px;
-    }
-
-    /* Shown if WORKER placeholder not replaced */
-    #not-configured {
-      display: none;
-      min-height: 100vh;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .cfg-card {
-      background: var(--bg-dark);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 44px 40px;
-      max-width: 500px;
-      width: 100%;
-    }
-
-    .cfg-card h1 { font-size: 22px; font-weight: 600; margin-bottom: 14px; }
-
-    .cfg-card p { font-size: 16px; color: var(--muted); line-height: 1.65; }
-
-    .cfg-card code {
-      background: rgba(255,255,255,0.08);
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-size: 15px;
-      color: var(--teal);
-    }
-
-    /* ─── MOBILE ─── */
-    @media (max-width: 768px) {
-
-      /* Page scrolls naturally on mobile */
-      html, body { overflow: auto; }
-
-      #dash { height: auto; min-height: 100vh; }
-
-      /* Header: tighten up, hide Refresh on very small screens */
-      .dh { padding: 10px 14px; }
-
-      /* Stats bar: wrap onto two lines */
-      .sb { flex-wrap: wrap; gap: 12px 18px; padding: 8px 14px; }
-      .sprint-name { margin-left: 0; width: 100%; order: 99; }
-      .sb-div { display: none; }
-
-      /* Stack col-wraps vertically; headers stay above their content */
-      .cols { grid-template-columns: 1fr; overflow: visible; height: auto; }
-      .col-wrap { overflow: visible; }
-      .col-wrap.prod-wrap { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
-      .col-hdr.prod { border-right: none; }
-
-      /* Columns: stack vertically, auto height */
-      .cols {
-        grid-template-columns: 1fr;
-        overflow: visible;
-        height: auto;
-      }
-
-      .col {
-        overflow-y: visible;
-        height: auto;
-        padding: 10px 12px;
-      }
-
-      .col.prod-col {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 16px;
-      }
-
-      /* Cards: bigger touch targets */
-      .card { padding: 13px 14px; }
-
-      /* Slightly tighter card title on small screens */
-      .card-title { -webkit-line-clamp: 3; }
-
-      /* Config error card */
-      .cfg-card { padding: 32px 24px; }
-
-      /* Header: prevent title wrapping */
-      .dh { padding: 9px 12px; flex-wrap: nowrap; }
-      .dh-l { min-width: 0; flex-shrink: 1; overflow: hidden; }
-      .dh-title { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .dh-r { flex-shrink: 0; gap: 6px; }
-      .sync-lbl { display: none; }
-      .hdr-btn { padding: 4px 8px; font-size: 10px; }
-    }
-
-    /* Sort buttons */
-    .sort-btns {
-      display: flex;
-      gap: 4px;
-      margin-left: auto;
-      flex-shrink: 0;
-    }
-
-    .sort-btn {
-      background: none;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 5px;
-      padding: 3px 7px;
-      cursor: pointer;
-      color: var(--dim);
-      display: flex;
-      align-items: center;
-      line-height: 1;
-    }
-
-    .sort-btn:active { opacity: 0.7; }
-
-    .sort-btn.on-prod  { color: var(--orange); border-color: rgba(240,82,35,0.45); }
-    .sort-btn.on-audit { color: var(--teal);   border-color: rgba(0,185,174,0.45); }
-  </style>
+    .card { padding: 7px 10px 6px; margin-bottom: 5px; }
+    .card-sum { -webkit-line-clamp: 3; }
+  }
+</style>
 </head>
 <body>
 
-<div id="not-configured">
-  <div class="cfg-card">
-    <h1>Worker URL not set</h1>
-    <p>
-      Open <code>index.html</code> and replace the placeholder in the
-      <code>WORKER</code> constant at the top of the script with your
-      Cloudflare Worker URL, then re-upload to GitHub.
-    </p>
-  </div>
-</div>
-
-<div id="dash">
-
-  <div class="dh">
-    <div class="dh-l">
-      <div class="bdot bdot-o"></div>
-      <span class="dh-title">Library Market &nbsp;/&nbsp; Jira</span>
-    </div>
-    <div class="dh-r">
-      <div class="sync-dot" id="syncDot"></div>
-      <span class="sync-lbl" id="syncLbl">Loading...</span>
-      <button class="hdr-btn" id="refreshBtn">Refresh</button>
-    </div>
-  </div>
-
-  <div class="sb">
-    <div class="st"><span class="sn" id="sOpen"   style="color:var(--text)">--</span><span class="sl">Open</span></div>
-    <div class="st"><span class="sn" id="sInProg" style="color:var(--teal)">--</span><span class="sl">In Progress</span></div>
-    <div class="st"><span class="sn" id="sDone"   style="color:#3eda7e">--</span><span class="sl">Done</span></div>
-    <div class="sb-div"></div>
-    <div class="st"><span class="sn" id="sAudits" style="color:#9d93f5">--</span><span class="sl">Audits</span></div>
-    <span class="sprint-name" id="sprintName"></span>
-  </div>
-
-  <div class="cols">
-    <div class="col-wrap prod-wrap">
-      <div class="col-hdr prod">
-        <span class="col-hdr-title">Steven's Production Tasks</span>
-        <span class="col-hdr-count" id="prodCount">--</span>
-      <div class="sort-btns">
-        <button class="sort-btn on-prod" id="prodSortPrio" title="Sort by priority"><svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="0" y="0.5" width="13" height="2.5" rx="1"/><rect x="0" y="5"   width="9"  height="2.5" rx="1"/><rect x="0" y="9.5" width="5"  height="2.5" rx="1"/></svg></button>
-        <button class="sort-btn" id="prodSortAge" title="Sort by age"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 3.5V7L9.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      </div>
-      </div>
-      <div class="col prod-col" id="prodCol">
-        <div class="col-meta">Current sprint &middot; Assigned to Steven</div>
-        <div class="skel" style="height:82px"></div>
-        <div class="skel" style="height:70px"></div>
-        <div class="skel" style="height:82px"></div>
-        <div class="skel" style="height:70px"></div>
-      </div>
-    </div>
-    <div class="col-wrap audit-wrap">
-      <div class="col-hdr audit">
-        <span class="col-hdr-title">Accessibility Audits</span>
-        <span class="col-hdr-count" id="auditCount">--</span>
-      <div class="sort-btns">
-        <button class="sort-btn on-audit" id="auditSortPrio" title="Sort by priority"><svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="0" y="0.5" width="13" height="2.5" rx="1"/><rect x="0" y="5"   width="9"  height="2.5" rx="1"/><rect x="0" y="9.5" width="5"  height="2.5" rx="1"/></svg></button>
-        <button class="sort-btn" id="auditSortAge" title="Sort by age"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 3.5V7L9.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      </div>
-      </div>
-      <div class="col audit-col" id="auditCol">
-        <div class="col-meta">Current sprint &middot; All assignees</div>
-        <div class="skel" style="height:82px"></div>
-        <div class="skel" style="height:70px"></div>
-        <div class="skel" style="height:82px"></div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
 <script>
-'use strict';
-
-/**
- * After deploying your Cloudflare Worker, paste its URL here.
- * Example: 'https://lm-jira-proxy.steventrotter.workers.dev'
- */
-const WORKER = 'https://lm-jira-proxy.hey-c75.workers.dev';
-
+const WORKER  = 'https://lm-jira-proxy.hey-c75.workers.dev';
 const PROJS   = 'SUP,PRO,LC';
 const REFRESH = 60000;
 
-if (WORKER.includes('YOUR-WORKER-NAME')) {
-  document.getElementById('dash').style.display           = 'none';
-  document.getElementById('not-configured').style.display = 'flex';
-  throw new Error('Worker URL not configured.');
+if (!WORKER || WORKER.includes('YOUR-WORKER')) {
+  document.body.innerHTML = `
+    <div class="err-screen">
+      <h1>Worker URL not set</h1>
+      <p>Open <code>index.html</code> and replace the placeholder in the
+      <code>WORKER</code> constant at the top of the script with your
+      Cloudflare Worker URL, then re-upload to GitHub.</p>
+    </div>`;
+  throw new Error('WORKER not configured');
 }
 
-/* ── HELPERS ── */
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+let prodIssues  = [];
+let auditIssues = [];
+let prodSort    = 'priority';
+let auditSort   = 'priority';
+let sprintMode  = true;
+let countdown   = REFRESH / 1000;
+let autoTimer   = null;
+let countTimer  = null;
 
-function timeAgo(iso) {
-  const d = Math.floor((Date.now() - new Date(iso)) / 1000);
-  if (d < 60)    return 'just now';
-  if (d < 3600)  return Math.floor(d/60) + 'm ago';
-  if (d < 86400) return Math.floor(d/3600) + 'h ago';
-  return Math.floor(d/86400) + 'd ago';
-}
-
-function initials(name) {
-  if (!name) return '?';
-  const p = name.trim().split(/\s+/);
-  return p.length === 1
-    ? p[0].slice(0,2).toUpperCase()
-    : (p[0][0] + p[p.length-1][0]).toUpperCase();
-}
-
-const AV_COLORS = [
-  ['rgba(240,82,35,0.22)',   '#f07a5a'],
-  ['rgba(0,185,174,0.22)',   '#00b9ae'],
-  ['rgba(122,110,240,0.22)', '#9d93f5'],
-  ['rgba(240,160,35,0.22)',  '#f0b03e'],
-  ['rgba(34,197,94,0.18)',   '#3eda7e'],
-];
-
-function avColor(name) {
-  if (!name) return AV_COLORS[0];
+// Avatar
+const AVATAR_COLORS = ['#e53935','#d81b60','#8e24aa','#3949ab','#1e88e5',
+                       '#00acc1','#00897b','#43a047','#fb8c00','#6d4c41'];
+function avatarColor(name) {
   let h = 0;
-  for (let i = 0; i < name.length; i++) h = Math.imul(31, h) + name.charCodeAt(i) | 0;
-  return AV_COLORS[Math.abs(h) % AV_COLORS.length];
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+function initials(n) {
+  if (!n) return '?';
+  const p = n.trim().split(/\s+/);
+  return p.length >= 2 ? (p[0][0] + p[p.length-1][0]).toUpperCase() : n.slice(0,2).toUpperCase();
 }
 
-function prioColor(p) {
-  if (!p) return '#787470';
-  const n = p.toLowerCase();
-  if (n === 'highest' || n === 'critical') return '#ef4444';
-  if (n === 'high')   return '#f05223';
-  if (n === 'medium') return '#f0a023';
-  return '#787470';
+// Status pill
+function pill(status) {
+  const cat  = (status.statusCategory?.key || '').toLowerCase();
+  const name = status.name || 'Unknown';
+  const low  = name.toLowerCase();
+  let cls = 'p-def';
+  if      (cat === 'new'           || low.includes('to do'))       cls = 'p-todo';
+  else if (cat === 'indeterminate' || low.includes('in progress')) cls = 'p-inprog';
+  else if (cat === 'done')                                         cls = 'p-done';
+  else if (low.includes('review'))                                 cls = 'p-review';
+  else if (low.includes('block'))                                  cls = 'p-blocked';
+  return `<span class="pill ${cls}">${name}</span>`;
 }
 
-function pillClass(cat) {
-  if (cat === 'done')          return 'p-done';
-  if (cat === 'indeterminate') return 'p-progress';
-  return 'p-new';
+// Priority
+const PRIO_ORD = { Highest:0, High:1, Medium:2, Low:3, Lowest:4 };
+function priHTML(priority) {
+  const name = priority?.name || 'Medium';
+  const cls  = { Highest:'pri-highest', High:'pri-high', Medium:'pri-medium',
+                 Low:'pri-low', Lowest:'pri-lowest' }[name] || 'pri-medium';
+  return `<span class="pri-dot ${cls}"></span><span class="pri-lbl">${name}</span>`;
 }
 
-/* ── API ── */
-const FIELDS = ['summary','status','priority','assignee','updated','issuetype','project'];
-
-async function jiraPost(path, body) {
-  const r = await fetch(WORKER + path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
-  return r.json();
-}
-
-async function search(jql, fallback) {
-  const payload = j => ({ jql: j, maxResults: 50, fields: FIELDS });
-  try {
-    const d = await jiraPost('/rest/api/3/search/jql', payload(jql));
-    return { issues: d.issues || [], usedFallback: false };
-  } catch(e) {
-    if ((e.status === 400 || e.status === 500) && fallback) {
-      const d = await jiraPost('/rest/api/3/search/jql', payload(fallback));
-      return { issues: d.issues || [], usedFallback: true };
-    }
-    throw e;
-  }
-}
-
-/* ── JQL ── */
-const SPRINT_PROD  = `project in (${PROJS}) AND sprint in openSprints() AND assignee = currentUser() AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
-const OPEN_PROD    = `project in (${PROJS}) AND assignee = currentUser() AND statusCategory != Done AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
-const SPRINT_AUDIT = `project in (${PROJS}) AND sprint in openSprints() AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY updated DESC`;
-const OPEN_AUDIT   = `project in (${PROJS}) AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") AND statusCategory != Done ORDER BY updated DESC`;
-
-/* ── RENDER ── */
-function card(issue) {
-  const f    = issue.fields;
-  const key  = issue.key;
-  const proj = key.split('-')[0];
-  const cat  = f.status?.statusCategory?.key || 'new';
-  const sName= f.status?.name || 'Unknown';
-  const prio = f.priority?.name || '';
-  const who  = f.assignee?.displayName || '';
-  const [bg, fg] = avColor(who);
-  const href = `https://librarymarket.atlassian.net/browse/${esc(key)}`;
-
-  return `<a class="card" href="${href}" target="_blank">
-    <div class="card-top">
-      <span class="card-key">${esc(key)}</span>
-      <span class="pill ${pillClass(cat)}">${esc(sName)}</span>
-    </div>
-    <div class="card-title">${esc(f.summary || '')}</div>
-    <div class="card-bottom">
-      <div class="card-l">
-        <span class="proj proj-${esc(proj)}">${esc(proj)}</span>
-        <div class="pdot" style="background:${prioColor(prio)}"></div>
-        <span class="plbl">${esc(prio)}</span>
-      </div>
-      <div class="card-r">
-        <span class="tago">${timeAgo(f.updated)}</span>
-        ${who ? `<div class="av" style="background:${bg};color:${fg}">${initials(who)}</div>` : ''}
-      </div>
-    </div>
-  </a>`;
-}
-
-function msgHtml(head, body) {
-  return `<div class="msg"><strong>${head}</strong>${body}</div>`;
-}
-
-/* ── STATE ── */
-let ticker = null, countdown = null;
-
-function setSyncState(state, label) {
-  document.getElementById('syncDot').className    = 'sync-dot ' + state;
-  document.getElementById('syncLbl').textContent  = label;
-}
-
-function startCountdown() {
-  if (countdown) clearInterval(countdown);
-  let s = 0;
-  countdown = setInterval(() => {
-    s++;
-    const lbl = document.getElementById('syncLbl');
-    if (s < 10)      lbl.textContent = 'Synced just now';
-    else if (s < 60) lbl.textContent = `Synced ${s}s ago`;
-    else             lbl.textContent = `Synced ${Math.floor(s/60)}m ago`;
-  }, 1000);
-}
-
-function updateStats(prod, audit) {
-  const all = [...prod, ...audit];
-  document.getElementById('sOpen').textContent   = all.filter(i => i.fields.status?.statusCategory?.key !== 'done').length;
-  document.getElementById('sInProg').textContent = all.filter(i => i.fields.status?.statusCategory?.key === 'indeterminate').length;
-  document.getElementById('sDone').textContent   = all.filter(i => i.fields.status?.statusCategory?.key === 'done').length;
-  document.getElementById('sAudits').textContent = audit.length;
-}
-
-
-/* ── SORT ── */
-const sortState = { prod: 'priority', audit: 'priority' };
-let cachedProd = [], cachedAudit = [];
-
-const PRIO_RANK = { highest: 1, critical: 1, high: 2, medium: 3, low: 4, lowest: 5 };
-
-function sortIssues(issues, key) {
+// Sort
+function sorted(issues, mode) {
   return [...issues].sort((a, b) => {
-    if (key === 'priority') {
-      const pa = PRIO_RANK[(a.fields.priority?.name || '').toLowerCase()] ?? 6;
-      const pb = PRIO_RANK[(b.fields.priority?.name || '').toLowerCase()] ?? 6;
-      return pa - pb;
+    if (mode === 'priority') {
+      const pa = PRIO_ORD[a.fields.priority?.name] ?? 99;
+      const pb = PRIO_ORD[b.fields.priority?.name] ?? 99;
+      if (pa !== pb) return pa - pb;
     }
     return new Date(b.fields.updated) - new Date(a.fields.updated);
   });
 }
 
-function updateSortBtns(col) {
-  const isPrio = sortState[col] === 'priority';
-  const cls    = col === 'prod' ? 'on-prod' : 'on-audit';
-  document.getElementById(col + 'SortPrio').classList.toggle(cls, isPrio);
-  document.getElementById(col + 'SortAge').classList.toggle(cls, !isPrio);
+// Card HTML
+function cardHTML(issue) {
+  const f   = issue.fields;
+  const asgn = f.assignee;
+  const av  = asgn
+    ? `<span class="avatar" style="background:${avatarColor(asgn.displayName)}">${initials(asgn.displayName)}</span>`
+    : '';
+  return `
+    <div class="card" onclick="openTicket('${issue.key}')">
+      <div class="card-top">
+        <span class="card-key">${issue.key}</span>
+        <div class="card-right">${pill(f.status)}${av}</div>
+      </div>
+      <div class="card-sum">${f.summary || ''}</div>
+      <div class="card-meta">${priHTML(f.priority)}</div>
+    </div>`;
 }
 
-function renderColContent(col, issues) {
-  const el   = document.getElementById(col + 'Col');
-  const meta = col === 'prod'
-    ? (issues._fallback ? 'Open tickets &middot; Assigned to Steven' : 'Current sprint &middot; Assigned to Steven')
-    : (issues._fallback ? 'Open tickets &middot; All assignees'       : 'Current sprint &middot; All assignees');
-  const sorted = sortIssues(issues, sortState[col]);
-  el.innerHTML = `<div class="col-meta">${meta}</div>` + (
-    sorted.length === 0
-      ? msgHtml(col === 'prod' ? 'All clear' : 'No audits',
-                col === 'prod' ? 'No open tickets assigned to you.' : 'No accessibility audit tickets in this sprint.')
-      : sorted.map(card).join('')
-  );
+function openTicket(key) {
+  window.open(`https://librarymarket.atlassian.net/browse/${key}`, '_blank');
 }
 
-['prod', 'audit'].forEach(col => {
-  document.getElementById(col + 'SortPrio').addEventListener('click', () => {
-    sortState[col] = 'priority';
-    updateSortBtns(col);
-    renderColContent(col, col === 'prod' ? cachedProd : cachedAudit);
-  });
-  document.getElementById(col + 'SortAge').addEventListener('click', () => {
-    sortState[col] = 'age';
-    updateSortBtns(col);
-    renderColContent(col, col === 'prod' ? cachedProd : cachedAudit);
-  });
-});
+function renderCol(id, issues, sort) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const list = sorted(issues, sort);
+  el.innerHTML = list.length
+    ? list.map(cardHTML).join('')
+    : '<div class="state-msg">No tickets found</div>';
+}
 
-/* ── LOAD ── */
-async function load() {
-  setSyncState('busy', 'Syncing...');
+function set(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+function updateStats() {
+  const all    = [...prodIssues, ...auditIssues];
+  const catKey = i => (i.fields.status.statusCategory?.key || '').toLowerCase();
+  set('stat-open',   all.filter(i => catKey(i) !== 'done').length);
+  set('stat-inprog', all.filter(i => catKey(i) === 'indeterminate').length);
+  set('stat-done',   all.filter(i => catKey(i) === 'done').length);
+  set('stat-audits', auditIssues.length);
+  set('prod-count',  prodIssues.length);
+  set('audit-count', auditIssues.length);
+}
+
+// API
+async function jiraPost(path, body) {
+  const res = await fetch(WORKER + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const t = await res.text().catch(() => ''); throw new Error(`HTTP ${res.status}: ${t.slice(0,200)}`); }
+  return res.json();
+}
+
+const FIELDS = ['summary','status','priority','assignee','updated','issuetype','project'];
+
+async function fetchAll() {
+  const dot = document.getElementById('sync-dot');
+  if (dot) dot.className = 'sync-dot stale';
+
+  const base = `project in (${PROJS})`;
+  const sprint = sprintMode ? 'sprint in openSprints() AND ' : '';
+  const noSprint = sprintMode ? '' : 'statusCategory != Done AND ';
+
+  const prodJQL  = sprintMode
+    ? `${base} AND sprint in openSprints() AND assignee = currentUser() AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
+    : `${base} AND assignee = currentUser() AND statusCategory != Done AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+  const auditJQL = sprintMode
+    ? `${base} AND sprint in openSprints() AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
+    : `${base} AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") AND statusCategory != Done ORDER BY priority ASC, updated DESC`;
 
   try {
-    const [pRes, aRes] = await Promise.all([
-      search(SPRINT_PROD, OPEN_PROD),
-      search(SPRINT_AUDIT, OPEN_AUDIT),
+    const [pd, ad] = await Promise.all([
+      jiraPost('/rest/api/3/search/jql', { jql: prodJQL,  maxResults: 50,  fields: FIELDS }),
+      jiraPost('/rest/api/3/search/jql', { jql: auditJQL, maxResults: 100, fields: FIELDS })
     ]);
+    prodIssues  = pd.issues  || [];
+    auditIssues = ad.issues  || [];
+  } catch (err) {
+    if (sprintMode && (err.message.includes('400') || err.message.includes('500'))) {
+      sprintMode = false;
+      set('prod-sub',  'All open - sprint boards not configured');
+      set('audit-sub', 'All open - sprint boards not configured');
+      return fetchAll();
+    }
+    set('prod-col',  ''); set('audit-col', '');
+    document.getElementById('prod-col').innerHTML  = '<div class="state-msg">Error loading tickets</div>';
+    document.getElementById('audit-col').innerHTML = '<div class="state-msg">Error loading tickets</div>';
+    return;
+  }
 
-    const pIssues = pRes.issues;
-    const aIssues = aRes.issues;
-    const fallback = pRes.usedFallback;
+  renderCol('prod-col',  prodIssues,  prodSort);
+  renderCol('audit-col', auditIssues, auditSort);
+  updateStats();
+  if (dot) dot.className = 'sync-dot';
+  countdown = REFRESH / 1000;
+}
 
-    document.getElementById('sprintName').textContent = fallback
-      ? 'No active sprint - showing all open'
-      : 'Active sprint';
-
-    // Tag issues with fallback flag for renderColContent meta text
-    pIssues._fallback = fallback;
-    aIssues._fallback = aRes.usedFallback;
-
-    // Cache for re-sort without re-fetch
-    cachedProd  = pIssues;
-    cachedAudit = aIssues;
-
-    document.getElementById('prodCount').textContent  = pIssues.length;
-    document.getElementById('auditCount').textContent = aIssues.length;
-
-    renderColContent('prod',  cachedProd);
-    renderColContent('audit', cachedAudit);
-
-    updateStats(pIssues, aIssues);
-    setSyncState('ok', 'Synced just now');
-    startCountdown();
-
-  } catch(e) {
-    console.error(e);
-    setSyncState('err', 'Error - will retry in 60s');
-    const errMsg = e.status === 401
-      ? 'Authentication error. The Worker secret may need updating.'
-      : 'Could not reach Jira. Check your connection or Worker logs.';
-    prodCol.innerHTML  = `<div class="col-meta">Current sprint &middot; Assigned to Steven</div>` + msgHtml('Error', errMsg);
-    auditCol.innerHTML = `<div class="col-meta">Current sprint &middot; All assignees</div>`;
-    document.getElementById('prodCount').textContent  = '--';
-    document.getElementById('auditCount').textContent = '--';
+function setSort(col, mode) {
+  if (col === 'prod') {
+    prodSort = mode;
+    document.getElementById('prod-pri').classList.toggle('active', mode === 'priority');
+    document.getElementById('prod-age').classList.toggle('active', mode === 'age');
+    renderCol('prod-col', prodIssues, prodSort);
+  } else {
+    auditSort = mode;
+    document.getElementById('audit-pri').classList.toggle('active', mode === 'priority');
+    document.getElementById('audit-age').classList.toggle('active', mode === 'age');
+    renderCol('audit-col', auditIssues, auditSort);
   }
 }
 
-document.getElementById('refreshBtn').addEventListener('click', load);
-load();
-ticker = setInterval(load, REFRESH);
+function startTimers() {
+  clearInterval(autoTimer); clearInterval(countTimer);
+  autoTimer  = setInterval(fetchAll, REFRESH);
+  countTimer = setInterval(() => {
+    countdown = Math.max(0, countdown - 1);
+    set('countdown', countdown + 's');
+  }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', () => { fetchAll(); startTimers(); });
 </script>
+
+<div class="app">
+
+  <header class="hdr">
+    <span class="hdr-title">Library Market &nbsp;/&nbsp; Jira</span>
+    <div class="hdr-right">
+      <div class="sync-info">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span class="sync-label">Refresh in <span id="countdown">60s</span></span>
+      </div>
+      <button class="btn-refresh" onclick="fetchAll(); startTimers();">Refresh</button>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-val" id="stat-open">--</span>&nbsp;Open</div>
+    <div class="stat-div"></div>
+    <div class="stat"><span class="stat-val" id="stat-inprog">--</span>&nbsp;In Progress</div>
+    <div class="stat-div"></div>
+    <div class="stat"><span class="stat-val" id="stat-done">--</span>&nbsp;Done</div>
+    <div class="stat-div"></div>
+    <div class="stat"><span class="stat-val" id="stat-audits">--</span>&nbsp;Audits</div>
+    <span class="sprint-lbl">Current sprint</span>
+  </div>
+
+  <div class="cols">
+
+    <div class="col-wrap prod-wrap">
+      <div class="col-hdr">
+        <div class="col-hdr-left">
+          <div class="col-title">Steven's Production Tasks <span class="col-count" id="prod-count">--</span></div>
+          <div class="col-sub" id="prod-sub">Current sprint &middot; Assigned to Steven</div>
+        </div>
+        <div class="col-sort">
+          <button class="sort-btn active" id="prod-pri" title="Sort by priority" onclick="setSort('prod','priority')">&#9776;</button>
+          <button class="sort-btn" id="prod-age" title="Sort by recent" onclick="setSort('prod','age')">&#9201;</button>
+        </div>
+      </div>
+      <div class="col" id="prod-col"><div class="state-msg">Loading&hellip;</div></div>
+    </div>
+
+    <div class="col-wrap audit-wrap">
+      <div class="col-hdr">
+        <div class="col-hdr-left">
+          <div class="col-title">Accessibility Audits <span class="col-count" id="audit-count">--</span></div>
+          <div class="col-sub" id="audit-sub">Current sprint &middot; All assignees</div>
+        </div>
+        <div class="col-sort">
+          <button class="sort-btn active" id="audit-pri" title="Sort by priority" onclick="setSort('audit','priority')">&#9776;</button>
+          <button class="sort-btn" id="audit-age" title="Sort by recent" onclick="setSort('audit','age')">&#9201;</button>
+        </div>
+      </div>
+      <div class="col" id="audit-col"><div class="state-msg">Loading&hellip;</div></div>
+    </div>
+
+  </div>
+
+</div>
 </body>
 </html>
