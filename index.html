@@ -120,7 +120,6 @@
     .col-wrap {
       display: flex;
       flex-direction: column;
-      overflow: hidden;
       min-height: 0;
     }
 
@@ -161,6 +160,7 @@
     .cols {
       display: grid;
       grid-template-columns: 3fr 2fr;
+      grid-auto-rows: 1fr;
       flex: 1;
       overflow: hidden;
       min-height: 0;
@@ -387,6 +387,31 @@
       .sync-lbl { display: none; }
       .hdr-btn { padding: 4px 8px; font-size: 10px; }
     }
+
+    /* Sort buttons */
+    .sort-btns {
+      display: flex;
+      gap: 4px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .sort-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 5px;
+      padding: 3px 7px;
+      cursor: pointer;
+      color: var(--dim);
+      display: flex;
+      align-items: center;
+      line-height: 1;
+    }
+
+    .sort-btn:active { opacity: 0.7; }
+
+    .sort-btn.on-prod  { color: var(--orange); border-color: rgba(240,82,35,0.45); }
+    .sort-btn.on-audit { color: var(--teal);   border-color: rgba(0,185,174,0.45); }
   </style>
 </head>
 <body>
@@ -430,6 +455,10 @@
       <div class="col-hdr prod">
         <span class="col-hdr-title">Steven's Production Tasks</span>
         <span class="col-hdr-count" id="prodCount">--</span>
+      <div class="sort-btns">
+        <button class="sort-btn on-prod" id="prodSortPrio" title="Sort by priority"><svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="0" y="0.5" width="13" height="2.5" rx="1"/><rect x="0" y="5"   width="9"  height="2.5" rx="1"/><rect x="0" y="9.5" width="5"  height="2.5" rx="1"/></svg></button>
+        <button class="sort-btn" id="prodSortAge" title="Sort by age"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 3.5V7L9.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
       </div>
       <div class="col prod-col" id="prodCol">
         <div class="col-meta">Current sprint &middot; Assigned to Steven</div>
@@ -443,6 +472,10 @@
       <div class="col-hdr audit">
         <span class="col-hdr-title">Accessibility Audits</span>
         <span class="col-hdr-count" id="auditCount">--</span>
+      <div class="sort-btns">
+        <button class="sort-btn on-audit" id="auditSortPrio" title="Sort by priority"><svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="0" y="0.5" width="13" height="2.5" rx="1"/><rect x="0" y="5"   width="9"  height="2.5" rx="1"/><rect x="0" y="9.5" width="5"  height="2.5" rx="1"/></svg></button>
+        <button class="sort-btn" id="auditSortAge" title="Sort by age"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 3.5V7L9.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
       </div>
       <div class="col audit-col" id="auditCol">
         <div class="col-meta">Current sprint &middot; All assignees</div>
@@ -623,12 +656,61 @@ function updateStats(prod, audit) {
   document.getElementById('sAudits').textContent = audit.length;
 }
 
+
+/* ── SORT ── */
+const sortState = { prod: 'priority', audit: 'priority' };
+let cachedProd = [], cachedAudit = [];
+
+const PRIO_RANK = { highest: 1, critical: 1, high: 2, medium: 3, low: 4, lowest: 5 };
+
+function sortIssues(issues, key) {
+  return [...issues].sort((a, b) => {
+    if (key === 'priority') {
+      const pa = PRIO_RANK[(a.fields.priority?.name || '').toLowerCase()] ?? 6;
+      const pb = PRIO_RANK[(b.fields.priority?.name || '').toLowerCase()] ?? 6;
+      return pa - pb;
+    }
+    return new Date(b.fields.updated) - new Date(a.fields.updated);
+  });
+}
+
+function updateSortBtns(col) {
+  const isPrio = sortState[col] === 'priority';
+  const cls    = col === 'prod' ? 'on-prod' : 'on-audit';
+  document.getElementById(col + 'SortPrio').classList.toggle(cls, isPrio);
+  document.getElementById(col + 'SortAge').classList.toggle(cls, !isPrio);
+}
+
+function renderColContent(col, issues) {
+  const el   = document.getElementById(col + 'Col');
+  const meta = col === 'prod'
+    ? (issues._fallback ? 'Open tickets &middot; Assigned to Steven' : 'Current sprint &middot; Assigned to Steven')
+    : (issues._fallback ? 'Open tickets &middot; All assignees'       : 'Current sprint &middot; All assignees');
+  const sorted = sortIssues(issues, sortState[col]);
+  el.innerHTML = `<div class="col-meta">${meta}</div>` + (
+    sorted.length === 0
+      ? msgHtml(col === 'prod' ? 'All clear' : 'No audits',
+                col === 'prod' ? 'No open tickets assigned to you.' : 'No accessibility audit tickets in this sprint.')
+      : sorted.map(card).join('')
+  );
+}
+
+['prod', 'audit'].forEach(col => {
+  document.getElementById(col + 'SortPrio').addEventListener('click', () => {
+    sortState[col] = 'priority';
+    updateSortBtns(col);
+    renderColContent(col, col === 'prod' ? cachedProd : cachedAudit);
+  });
+  document.getElementById(col + 'SortAge').addEventListener('click', () => {
+    sortState[col] = 'age';
+    updateSortBtns(col);
+    renderColContent(col, col === 'prod' ? cachedProd : cachedAudit);
+  });
+});
+
 /* ── LOAD ── */
 async function load() {
   setSyncState('busy', 'Syncing...');
-
-  const prodCol  = document.getElementById('prodCol');
-  const auditCol = document.getElementById('auditCol');
 
   try {
     const [pRes, aRes] = await Promise.all([
@@ -644,27 +726,19 @@ async function load() {
       ? 'No active sprint - showing all open'
       : 'Active sprint';
 
-    const pMeta = fallback
-      ? 'Open tickets &middot; Assigned to Steven'
-      : 'Current sprint &middot; Assigned to Steven';
-    const aMeta = aRes.usedFallback
-      ? 'Open tickets &middot; All assignees'
-      : 'Current sprint &middot; All assignees';
+    // Tag issues with fallback flag for renderColContent meta text
+    pIssues._fallback = fallback;
+    aIssues._fallback = aRes.usedFallback;
+
+    // Cache for re-sort without re-fetch
+    cachedProd  = pIssues;
+    cachedAudit = aIssues;
 
     document.getElementById('prodCount').textContent  = pIssues.length;
     document.getElementById('auditCount').textContent = aIssues.length;
 
-    prodCol.innerHTML = `<div class="col-meta">${pMeta}</div>` + (
-      pIssues.length === 0
-        ? msgHtml('All clear', 'No open tickets assigned to you.')
-        : pIssues.map(card).join('')
-    );
-
-    auditCol.innerHTML = `<div class="col-meta">${aMeta}</div>` + (
-      aIssues.length === 0
-        ? msgHtml('No audits', 'No accessibility audit tickets in this sprint.')
-        : aIssues.map(card).join('')
-    );
+    renderColContent('prod',  cachedProd);
+    renderColContent('audit', cachedAudit);
 
     updateStats(pIssues, aIssues);
     setSyncState('ok', 'Synced just now');
