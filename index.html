@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="LM Jira">
+  <title>LM · Jira Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #2d3035;
+      --bg-dark:   #22252a;
+      --bg-mid:    #272b30;
+      --border:    rgba(255,255,255,0.07);
+      --orange:    #f05223;
+      --teal:      #00b9ae;
+      --text:      #f5f5f2;
+      --muted:     #9a9690;
+      --dim:       #6b6862;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      font-family: 'Poppins', system-ui, sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ─── SETUP SCREEN ─── */
+    #setup {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .setup-card {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 44px 40px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .setup-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .bdot { width: 10px; height: 10px; border-radius: 50%; }
+    .bdot-o { background: var(--orange); }
+    .bdot-t { background: var(--teal); }
+
+    .setup-brand-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .setup-h { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
+
+    .setup-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+
+    .setup-desc a { color: var(--teal); text-decoration: none; }
+
+    .setup-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.03em;
+    }
+
+    .setup-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 13px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      margin-bottom: 20px;
+      letter-spacing: 0.04em;
+      transition: border-color 0.15s;
+    }
+
+    .setup-input:focus { border-color: var(--teal); }
+    .setup-input::placeholder { color: rgba(255,255,255,0.18); }
+
+    .setup-btn {
+      width: 100%;
+      background: var(--teal);
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: #051a1a;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: opacity 0.12s;
+    }
+
+    .setup-btn:disabled { opacity: 0.5; cursor: default; }
+    .setup-btn:not(:disabled):active { opacity: 0.8; }
+
+    .setup-error {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #ef7070;
+      text-align: center;
+      min-height: 18px;
+    }
+
+    /* ─── DASHBOARD ─── */
+    #dash {
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .dh {
+      background: var(--bg-dark);
+      padding: 11px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .dh-l { display: flex; align-items: center; gap: 9px; }
+
+    .dh-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .dh-r { display: flex; align-items: center; gap: 8px; }
+
+    .sync-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--dim);
+      flex-shrink: 0;
+    }
+
+    .sync-dot.busy   { background: #f0a023; }
+    .sync-dot.ok     { background: var(--teal); }
+    .sync-dot.err    { background: #ef7070; }
+
+    .sync-lbl { font-size: 11px; color: var(--dim); }
+
+    .hdr-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      color: var(--dim);
+      cursor: pointer;
+      margin-left: 4px;
+    }
+
+    .hdr-btn:active { opacity: 0.7; }
+
+    /* Stats Bar */
+    .sb {
+      background: var(--bg-mid);
+      padding: 7px 18px;
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      align-items: center;
+    }
+
+    .st { display: flex; align-items: center; gap: 6px; }
+    .sn { font-size: 13px; font-weight: 600; }
+    .sl { font-size: 11px; color: var(--dim); }
+
+    .sb-divider {
+      width: 1px;
+      height: 14px;
+      background: rgba(255,255,255,0.08);
+      margin: 0 2px;
+    }
+
+    .sprint-name {
+      font-size: 11px;
+      color: var(--dim);
+      margin-left: auto;
+      font-style: italic;
+    }
+
+    /* Column Headers */
+    .col-hdrs {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      flex-shrink: 0;
+    }
+
+    .col-hdr {
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .col-hdr.prod {
+      border-bottom: 2px solid var(--orange);
+      border-right: 1px solid var(--border);
+    }
+
+    .col-hdr.audit { border-bottom: 2px solid var(--teal); }
+
+    .col-hdr-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .col-hdr-count {
+      font-size: 11px;
+      color: var(--dim);
+      background: rgba(255,255,255,0.06);
+      padding: 1px 7px;
+      border-radius: 10px;
+    }
+
+    /* Columns */
+    .cols {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      flex: 1;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .col {
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .col.prod-col { border-right: 1px solid var(--border); }
+
+    .col::-webkit-scrollbar { width: 3px; }
+    .col::-webkit-scrollbar-track { background: transparent; }
+    .col::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+    .col-meta {
+      font-size: 10px;
+      color: var(--dim);
+      font-style: italic;
+      padding: 0 2px 2px;
+      flex-shrink: 0;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 11px 13px;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      flex-shrink: 0;
+      transition: background 0.1s;
+    }
+
+    .card:active { background: rgba(255,255,255,0.09); }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .card-key {
+      color: var(--orange);
+      font-size: 11px;
+      font-family: monospace;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .card-title {
+      font-size: 12px;
+      color: #dddad4;
+      line-height: 1.45;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-l { display: flex; align-items: center; gap: 6px; }
+    .card-r { display: flex; align-items: center; gap: 7px; }
+
+    /* Project badge */
+    .proj {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .proj-SUP { background: rgba(122,110,240,0.2);  color: #9d93f5; }
+    .proj-PRO { background: rgba(240,82,35,0.18);   color: #f07a5a; }
+    .proj-LC  { background: rgba(0,185,174,0.15);   color: var(--teal); }
+
+    /* Priority dot */
+    .pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .plbl { font-size: 10px; color: var(--dim); }
+
+    /* Time ago */
+    .tago { font-size: 10px; color: var(--dim); }
+
+    /* Avatar */
+    .av {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Status Pills */
+    .pill {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .p-new      { background: rgba(255,255,255,0.07); color: var(--muted); }
+    .p-progress { background: rgba(0,185,174,0.15);   color: var(--teal); }
+    .p-done     { background: rgba(34,197,94,0.13);   color: #3eda7e; }
+
+    /* Loading skeletons */
+    .skel {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      flex-shrink: 0;
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    .skel:nth-child(2) { animation-delay: 0.15s; }
+    .skel:nth-child(3) { animation-delay: 0.3s;  }
+    .skel:nth-child(4) { animation-delay: 0.45s; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.35; }
+      50%       { opacity: 0.65; }
+    }
+
+    /* State messages */
+    .msg {
+      text-align: center;
+      padding: 36px 20px;
+      color: var(--dim);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .msg strong {
+      display: block;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="setup">
+  <div class="setup-card">
+    <div class="setup-brand">
+      <div class="bdot bdot-o"></div>
+      <span class="setup-brand-label">Library Market &nbsp;/&nbsp; Jira Dashboard</span>
+    </div>
+    <h1 class="setup-h">Connect your account</h1>
+    <p class="setup-desc">
+      Enter your Atlassian API token to connect this dashboard to Jira.<br><br>
+      Generate a token at <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">id.atlassian.com &rsaquo; Security &rsaquo; API tokens</a>. Your token is stored only on this device and sent directly to Jira — nothing else sees it.
+    </p>
+    <label class="setup-label" for="tokenInput">Atlassian API Token</label>
+    <input
+      type="password"
+      id="tokenInput"
+      class="setup-input"
+      placeholder="Paste your API token here"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+    >
+    <button class="setup-btn" id="connectBtn">Connect to Jira</button>
+    <div class="setup-error" id="setupErr"></div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dash" style="display:none">
+
+  <div class="dh">
+    <div class="dh-l">
+      <div class="bdot bdot-o"></div>
+      <span class="dh-title">Library Market &nbsp;/&nbsp; Jira</span>
+    </div>
+    <div class="dh-r">
+      <div class="sync-dot" id="syncDot"></div>
+      <span class="sync-lbl" id="syncLbl">Loading...</span>
+      <button class="hdr-btn" id="refreshBtn">Refresh</button>
+      <button class="hdr-btn" id="resetBtn">Reset</button>
+    </div>
+  </div>
+
+  <div class="sb">
+    <div class="st">
+      <span class="sn" id="sOpen"  style="color:var(--text)">--</span>
+      <span class="sl">Open</span>
+    </div>
+    <div class="st">
+      <span class="sn" id="sInProg" style="color:var(--teal)">--</span>
+      <span class="sl">In Progress</span>
+    </div>
+    <div class="st">
+      <span class="sn" id="sDone" style="color:#3eda7e">--</span>
+      <span class="sl">Done</span>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="st">
+      <span class="sn" id="sAudits" style="color:#9d93f5">--</span>
+      <span class="sl">Audits</span>
+    </div>
+    <span class="sprint-name" id="sprintName"></span>
+  </div>
+
+  <div class="col-hdrs">
+    <div class="col-hdr prod">
+      <span class="col-hdr-title">Production Work</span>
+      <span class="col-hdr-count" id="prodCount">--</span>
+    </div>
+    <div class="col-hdr audit">
+      <span class="col-hdr-title">Accessibility Audits</span>
+      <span class="col-hdr-count" id="auditCount">--</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="col prod-col" id="prodCol">
+      <div class="col-meta">Current sprint &middot; Assigned to you</div>
+      <div class="skel" style="height:82px"></div>
+      <div class="skel" style="height:70px"></div>
+      <div class="skel" style="height:82px"></div>
+      <div class="skel" style="height:70px"></div>
+    </div>
+    <div class="col audit-col" id="auditCol">
+      <div class="col-meta">Current sprint &middot; All assignees</div>
+      <div class="skel" style="height:82px"></div>
+      <div class="skel" style="height:70px"></div>
+      <div class="skel" style="height:82px"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+/* ── CONFIG ── */
+const C = {
+  base:    'https://librarymarket.atlassian.net',
+  email:   'steven@librarymarket.com',
+  projs:   'SUP,PRO,LC',
+  key:     'lm_jira_token',
+  refresh: 60000
+};
+
+/* ── STORAGE ── */
+const getToken  = ()    => localStorage.getItem(C.key);
+const saveToken = (t)   => localStorage.setItem(C.key, t);
+const clearToken = ()   => localStorage.removeItem(C.key);
+
+function authHdr() {
+  return {
+    'Authorization': 'Basic ' + btoa(C.email + ':' + getToken()),
+    'Accept': 'application/json'
+  };
+}
+
+/* ── HELPERS ── */
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function timeAgo(iso) {
+  const d = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (d < 60)   return 'just now';
+  if (d < 3600) return Math.floor(d/60) + 'm ago';
+  if (d < 86400)return Math.floor(d/3600) + 'h ago';
+  return Math.floor(d/86400) + 'd ago';
+}
+
+function initials(name) {
+  if (!name) return '?';
+  const p = name.trim().split(/\s+/);
+  return p.length === 1
+    ? p[0].slice(0,2).toUpperCase()
+    : (p[0][0] + p[p.length-1][0]).toUpperCase();
+}
+
+const AV_COLORS = [
+  ['rgba(240,82,35,0.22)',  '#f07a5a'],
+  ['rgba(0,185,174,0.22)',  '#00b9ae'],
+  ['rgba(122,110,240,0.22)','#9d93f5'],
+  ['rgba(240,160,35,0.22)', '#f0b03e'],
+  ['rgba(34,197,94,0.18)',  '#3eda7e'],
+];
+
+function avColor(name) {
+  if (!name) return AV_COLORS[0];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = Math.imul(31, h) + name.charCodeAt(i) | 0;
+  return AV_COLORS[Math.abs(h) % AV_COLORS.length];
+}
+
+function prioColor(p) {
+  if (!p) return '#787470';
+  const n = p.toLowerCase();
+  if (n === 'highest' || n === 'critical') return '#ef4444';
+  if (n === 'high')   return '#f05223';
+  if (n === 'medium') return '#f0a023';
+  return '#787470';
+}
+
+function pillClass(cat) {
+  if (cat === 'done')         return 'p-done';
+  if (cat === 'indeterminate')return 'p-progress';
+  return 'p-new';
+}
+
+/* ── API ── */
+const FIELDS = 'summary,status,priority,assignee,updated,issuetype,project';
+
+async function jiraGet(path) {
+  const r = await fetch(C.base + path, { headers: authHdr() });
+  if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+  return r.json();
+}
+
+async function search(jql, fallback) {
+  const q = (j) => `/rest/api/3/search?maxResults=50&fields=${FIELDS}&jql=${encodeURIComponent(j)}`;
+  try {
+    const d = await jiraGet(q(jql));
+    return { issues: d.issues || [], usedFallback: false };
+  } catch(e) {
+    if ((e.status === 400 || e.status === 500) && fallback) {
+      const d = await jiraGet(q(fallback));
+      return { issues: d.issues || [], usedFallback: true };
+    }
+    throw e;
+  }
+}
+
+/* ── JQL ── */
+const SPRINT_PROD = `project in (${C.projs}) AND sprint in openSprints() AND assignee = currentUser() AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+const OPEN_PROD   = `project in (${C.projs}) AND assignee = currentUser() AND statusCategory != Done AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+
+const SPRINT_AUDIT = `project in (${C.projs}) AND sprint in openSprints() AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY updated DESC`;
+const OPEN_AUDIT   = `project in (${C.projs}) AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") AND statusCategory != Done ORDER BY updated DESC`;
+
+/* ── RENDER ── */
+function card(issue) {
+  const f   = issue.fields;
+  const key = issue.key;
+  const proj= key.split('-')[0];
+  const cat = f.status?.statusCategory?.key  || 'new';
+  const sName = f.status?.name || 'Unknown';
+  const prio  = f.priority?.name || '';
+  const who   = f.assignee?.displayName || '';
+  const [bg, fg] = avColor(who);
+  const href = `${C.base}/browse/${esc(key)}`;
+
+  return `<a class="card" href="${href}" target="_blank">
+    <div class="card-top">
+      <span class="card-key">${esc(key)}</span>
+      <span class="pill ${pillClass(cat)}">${esc(sName)}</span>
+    </div>
+    <div class="card-title">${esc(f.summary || '')}</div>
+    <div class="card-bottom">
+      <div class="card-l">
+        <span class="proj proj-${esc(proj)}">${esc(proj)}</span>
+        <div class="pdot" style="background:${prioColor(prio)}"></div>
+        <span class="plbl">${esc(prio)}</span>
+      </div>
+      <div class="card-r">
+        <span class="tago">${timeAgo(f.updated)}</span>
+        ${who ? `<div class="av" style="background:${bg};color:${fg}">${initials(who)}</div>` : ''}
+      </div>
+    </div>
+  </a>`;
+}
+
+function msgHtml(head, body) {
+  return `<div class="msg"><strong>${head}</strong>${body}</div>`;
+}
+
+/* ── STATE ── */
+let ticker = null;
+let countdown = null;
+
+function setSyncState(state, label) {
+  document.getElementById('syncDot').className = 'sync-dot ' + state;
+  document.getElementById('syncLbl').textContent = label;
+}
+
+function startCountdown() {
+  if (countdown) clearInterval(countdown);
+  let s = 0;
+  countdown = setInterval(() => {
+    s++;
+    const lbl = document.getElementById('syncLbl');
+    if (s < 10)        lbl.textContent = 'Synced just now';
+    else if (s < 60)   lbl.textContent = `Synced ${s}s ago`;
+    else               lbl.textContent = `Synced ${Math.floor(s/60)}m ago`;
+  }, 1000);
+}
+
+function updateStats(prod, audit) {
+  const all = [...prod, ...audit];
+  const open    = all.filter(i => i.fields.status?.statusCategory?.key !== 'done').length;
+  const inProg  = all.filter(i => i.fields.status?.statusCategory?.key === 'indeterminate').length;
+  const done    = all.filter(i => i.fields.status?.statusCategory?.key === 'done').length;
+  const audits  = audit.length;
+
+  document.getElementById('sOpen').textContent   = open;
+  document.getElementById('sInProg').textContent = inProg;
+  document.getElementById('sDone').textContent   = done;
+  document.getElementById('sAudits').textContent = audits;
+}
+
+/* ── LOAD ── */
+async function load() {
+  setSyncState('busy', 'Syncing...');
+
+  const prodCol  = document.getElementById('prodCol');
+  const auditCol = document.getElementById('auditCol');
+  const prodMeta  = 'Current sprint &middot; Assigned to you';
+  const auditMeta = 'Current sprint &middot; All assignees';
+  const openMeta  = 'Open tickets &middot; Assigned to you';
+  const openAuditMeta = 'Open tickets &middot; All assignees';
+
+  try {
+    const [pRes, aRes] = await Promise.all([
+      search(SPRINT_PROD, OPEN_PROD),
+      search(SPRINT_AUDIT, OPEN_AUDIT)
+    ]);
+
+    const pIssues = pRes.issues;
+    const aIssues = aRes.issues;
+    const pMeta   = pRes.usedFallback ? openMeta  : prodMeta;
+    const aMeta   = aRes.usedFallback ? openAuditMeta : auditMeta;
+
+    // Sprint name hint
+    const sprintEl = document.getElementById('sprintName');
+    sprintEl.textContent = pRes.usedFallback ? 'No active sprint - showing all open' : 'Active sprint';
+
+    // Production column
+    document.getElementById('prodCount').textContent = pIssues.length;
+    if (pIssues.length === 0) {
+      prodCol.innerHTML = `<div class="col-meta">${pMeta}</div>` +
+        msgHtml('All clear', 'No open tickets assigned to you.');
+    } else {
+      prodCol.innerHTML = `<div class="col-meta">${pMeta}</div>` +
+        pIssues.map(card).join('');
+    }
+
+    // Audit column
+    document.getElementById('auditCount').textContent = aIssues.length;
+    if (aIssues.length === 0) {
+      auditCol.innerHTML = `<div class="col-meta">${aMeta}</div>` +
+        msgHtml('No audits', 'No accessibility audit tickets found.');
+    } else {
+      auditCol.innerHTML = `<div class="col-meta">${aMeta}</div>` +
+        aIssues.map(card).join('');
+    }
+
+    updateStats(pIssues, aIssues);
+    setSyncState('ok', 'Synced just now');
+    startCountdown();
+
+  } catch(e) {
+    console.error(e);
+    if (e.status === 401) {
+      setSyncState('err', 'Auth failed - tap Reset');
+      prodCol.innerHTML  = `<div class="col-meta">${prodMeta}</div>` +
+        msgHtml('Authentication failed', 'Your token may have expired. Tap Reset to enter a new one.');
+      auditCol.innerHTML = `<div class="col-meta">${auditMeta}</div>`;
+      document.getElementById('prodCount').textContent  = '--';
+      document.getElementById('auditCount').textContent = '--';
+    } else {
+      setSyncState('err', 'Error - will retry in 60s');
+      prodCol.innerHTML  = `<div class="col-meta">${prodMeta}</div>` +
+        msgHtml('Could not reach Jira', 'Check your connection. The dashboard will retry automatically.');
+      auditCol.innerHTML = `<div class="col-meta">${auditMeta}</div>`;
+    }
+  }
+}
+
+/* ── DASHBOARD START ── */
+function startDashboard() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('dash').style.display  = 'flex';
+  load();
+  if (ticker) clearInterval(ticker);
+  ticker = setInterval(load, C.refresh);
+}
+
+/* ── SETUP ── */
+function showSetup(errMsg) {
+  if (ticker)    { clearInterval(ticker);    ticker    = null; }
+  if (countdown) { clearInterval(countdown); countdown = null; }
+  document.getElementById('dash').style.display  = 'none';
+  document.getElementById('setup').style.display = 'flex';
+  if (errMsg) document.getElementById('setupErr').textContent = errMsg;
+}
+
+document.getElementById('connectBtn').addEventListener('click', async () => {
+  const token = document.getElementById('tokenInput').value.trim();
+  if (!token) {
+    document.getElementById('setupErr').textContent = 'Please paste your API token.';
+    return;
+  }
+
+  const btn = document.getElementById('connectBtn');
+  btn.textContent = 'Connecting...';
+  btn.disabled = true;
+  document.getElementById('setupErr').textContent = '';
+
+  try {
+    const r = await fetch(`${C.base}/rest/api/3/myself`, {
+      headers: {
+        'Authorization': 'Basic ' + btoa(C.email + ':' + token),
+        'Accept': 'application/json'
+      }
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    saveToken(token);
+    startDashboard();
+  } catch(e) {
+    document.getElementById('setupErr').textContent =
+      'Could not connect. Double-check your token and try again.';
+    btn.textContent = 'Connect to Jira';
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('tokenInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('connectBtn').click();
+});
+
+document.getElementById('refreshBtn').addEventListener('click', load);
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (confirm('Clear your saved token and return to the setup screen?')) {
+    clearToken();
+    document.getElementById('tokenInput').value = '';
+    showSetup();
+  }
+});
+
+/* ── INIT ── */
+if (getToken()) {
+  startDashboard();
+}
+</script>
+</body>
+</html>
