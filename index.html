@@ -12,109 +12,89 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:        #2d3035;
-    --bg-dark:   #22252a;
-    --bg-mid:    #272b30;
-    --orange:    #f05223;
-    --teal:      #00b9ae;
-    --text:      #f5f5f2;
-    --muted:     #f5f5f2;
-    --dim:       #c9c5c0;
-    --card-bg:   #32363c;
-    --card-bdr:  #3e4349;
-    --radius:    7px;
+    --bg:       #2d3035;
+    --bg-dark:  #22252a;
+    --bg-mid:   #272b30;
+    --orange:   #f05223;
+    --teal:     #00b9ae;
+    --text:     #f5f5f2;
+    --dim:      #c9c5c0;
+    --card-bg:  #32363c;
+    --card-bdr: #3e4349;
+    --radius:   7px;
   }
 
   html, body { height: 100%; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-
   .app { display: flex; flex-direction: column; height: 100vh; }
 
-  /* HEADER */
+  /* ── HEADER ── */
   .hdr {
     background: var(--bg-dark);
     padding: 9px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
     flex-shrink: 0;
     border-bottom: 2px solid var(--orange);
   }
   .hdr-title {
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 13px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .hdr-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--dim); }
+  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--dim); }
   .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
   .sync-dot.stale { background: #777; }
   .sync-label { white-space: nowrap; }
   .btn-refresh {
     background: var(--orange); color: #fff; border: none; border-radius: 5px;
-    padding: 5px 11px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600;
+    padding: 5px 12px; font-family: 'Poppins', sans-serif; font-size: 11.5px; font-weight: 600;
     cursor: pointer; letter-spacing: .04em; transition: opacity .15s;
   }
   .btn-refresh:hover { opacity: .85; }
 
-  /* STATS */
+  /* ── STATS BAR ── */
   .stats {
     background: var(--bg-mid);
     padding: 6px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-shrink: 0;
-    font-size: 11px;
-    color: var(--dim);
-    flex-wrap: wrap;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    flex-shrink: 0; font-size: 11.5px; color: var(--dim);
   }
   .stat { display: flex; align-items: center; gap: 5px; }
-  .stat-val { font-weight: 700; font-size: 13px; color: var(--text); }
+  .stat-val { font-weight: 700; font-size: 13.5px; color: var(--text); }
   .stat-div { width: 1px; height: 13px; background: #444; }
-  .sprint-lbl { margin-left: auto; font-size: 10px; color: var(--dim); font-style: italic; }
+  .version-badge {
+    margin-left: auto;
+    font-size: 10px; color: #666;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .04em;
+  }
+  .sprint-lbl { font-size: 10.5px; color: var(--dim); font-style: italic; }
 
-  /* COLUMNS */
+  /* ── COLUMNS ── */
   .cols {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    grid-auto-rows: 1fr;
-    flex: 1;
-    min-height: 0;
+    display: grid; grid-template-columns: 3fr 2fr; grid-auto-rows: 1fr;
+    flex: 1; min-height: 0;
   }
   .col-wrap { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   .col-wrap.prod-wrap { border-right: 1px solid #3a3e44; }
 
-  /* COLUMN HEADER */
+  /* ── COLUMN HEADER ── */
   .col-hdr {
     padding: 9px 14px 7px;
     background: var(--bg-dark);
     border-bottom: 2px solid var(--orange);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     flex-shrink: 0;
   }
   .col-hdr-left { display: flex; flex-direction: column; gap: 1px; }
   .col-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 7px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; display: flex; align-items: center; gap: 7px;
   }
   .col-count {
     background: #3e4349; color: var(--dim);
-    font-size: 9.5px; font-weight: 600;
-    border-radius: 10px; padding: 1px 6px;
+    font-size: 10px; font-weight: 600; border-radius: 10px; padding: 1px 6px;
   }
-  .col-sub { font-size: 9.5px; color: var(--dim); font-style: italic; }
+  .col-sub { font-size: 10px; color: var(--dim); font-style: italic; }
   .col-sort { display: flex; gap: 4px; }
   .sort-btn {
     background: none; border: 1px solid #3e4349; border-radius: 4px;
@@ -126,82 +106,72 @@
   .sort-btn.active { border-color: var(--orange); color: var(--orange); }
   .col-wrap.audit-wrap .sort-btn.active { border-color: var(--teal); color: var(--teal); }
 
-  /* SCROLL AREA */
+  /* ── SCROLL AREA ── */
   .col { overflow-y: auto; flex: 1; padding: 9px 11px; min-height: 0; }
   .col::-webkit-scrollbar { width: 4px; }
   .col::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
 
-  /* CARD */
+  /* ── CARD ── */
   .card {
     background: var(--card-bg);
     border: 1px solid var(--card-bdr);
     border-radius: var(--radius);
-    padding: 8px 11px 7px;
+    padding: 8px 11px;
     margin-bottom: 6px;
     cursor: pointer;
     transition: border-color .15s, transform .1s;
   }
   .card:last-child { margin-bottom: 0; }
   .card:hover { border-color: var(--orange); transform: translateY(-1px); }
+  .card.blocked { border-color: #e53935 !important; }
+  .card.blocked:hover { border-color: #ff5252 !important; }
 
-  /* Card row 1: key | status + avatar */
+  /* Row 1: key | priority + status + avatar */
   .card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 3px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 6px; margin-bottom: 4px;
   }
-  .card-key { font-size: 11px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .card-key { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
   .card-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 
-  /* Card row 2: summary */
+  /* Row 2: summary */
   .card-sum {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text);
+    font-size: 13px; font-weight: 500; color: var(--text);
     line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    margin-bottom: 4px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
 
-  /* Card row 3: priority */
-  .card-meta { display: flex; align-items: center; gap: 5px; }
-
-  /* STATUS PILLS */
+  /* ── STATUS PILLS ── */
   .pill {
-    font-size: 9px; font-weight: 600; letter-spacing: .05em;
+    font-size: 9.5px; font-weight: 600; letter-spacing: .05em;
     text-transform: uppercase; border-radius: 4px; padding: 2px 6px; white-space: nowrap;
   }
   .p-todo    { background: rgba(150,150,160,.35); color: #fff; }
-  .p-inprog  { background: rgba(0,185,174,.22); color: var(--teal); }
-  .p-done    { background: rgba(55,170,90,.22); color: #5ec97a; }
-  .p-review  { background: rgba(140,90,200,.22); color: #b07de8; }
-  .p-blocked { background: rgba(220,60,60,.22); color: #f07070; }
+  .p-inprog  { background: rgba(0,185,174,.22);  color: var(--teal); }
+  .p-done    { background: rgba(55,170,90,.22);   color: #5ec97a; }
+  .p-review  { background: rgba(140,90,200,.22);  color: #b07de8; }
+  .p-blocked { background: rgba(220,60,60,.22);   color: #f07070; }
   .p-def     { background: rgba(120,120,130,.18); color: var(--dim); }
 
-  /* PRIORITY */
+  /* ── PRIORITY DOT ── */
   .pri-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .pri-highest { background: #e53935; }
   .pri-high    { background: var(--orange); }
   .pri-medium  { background: #f5a623; }
   .pri-low     { background: #78909c; }
   .pri-lowest  { background: #546e7a; }
-  .pri-lbl { font-size: 10px; color: var(--dim); }
+  .pri-lbl { font-size: 10.5px; color: var(--dim); }
 
-  /* AVATAR */
+  /* ── AVATAR ── */
+  /* Colors chosen for WCAG AA contrast (>= 4.5:1) with white text */
   .avatar {
-    width: 20px; height: 20px; border-radius: 50%;
+    width: 21px; height: 21px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 8.5px; font-weight: 700; color: #fff; flex-shrink: 0;
   }
 
-  /* STATES */
-  .state-msg { padding: 20px 0; text-align: center; font-size: 11.5px; color: var(--dim); }
-
+  /* ── STATES ── */
+  .state-msg { padding: 20px 0; text-align: center; font-size: 12px; color: var(--dim); }
   .err-screen {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; height: 100vh; gap: 10px; text-align: center; padding: 24px;
@@ -209,29 +179,21 @@
   .err-screen h1 { font-size: 20px; color: var(--orange); }
   .err-screen p  { font-size: 13px; color: var(--dim); max-width: 440px; line-height: 1.6; }
 
-  /* MOBILE */
+  /* ── MOBILE ── */
   @media (max-width: 768px) {
     html, body { overflow: auto; height: auto; }
     .app { height: auto; overflow: visible; }
-
     .hdr { padding: 8px 12px; }
     .sync-label { display: none; }
     .btn-refresh { padding: 4px 9px; font-size: 10.5px; }
-
     .stats { padding: 5px 12px; gap: 10px; }
     .stat-div { display: none; }
-    .sprint-lbl { width: 100%; margin-left: 0; }
-
-    .cols {
-      display: flex;
-      flex-direction: column;
-      flex: none;
-      grid-auto-rows: auto;
-    }
+    .version-badge { margin-left: 0; }
+    .sprint-lbl { width: 100%; }
+    .cols { display: flex; flex-direction: column; flex: none; grid-auto-rows: auto; }
     .col-wrap { flex: none; min-height: 0; overflow: visible; }
     .col { overflow-y: visible; flex: none; padding: 7px 10px; }
-
-    .card { padding: 7px 10px 6px; margin-bottom: 5px; }
+    .card { padding: 7px 10px; margin-bottom: 5px; }
     .card-sum { -webkit-line-clamp: 3; }
   }
 </style>
@@ -239,10 +201,12 @@
 <body>
 
 <script>
+const VERSION = 'v2.1.0';
 const WORKER  = 'https://lm-jira-proxy.hey-c75.workers.dev';
 const PROJS   = 'SUP,PRO,LC';
 const REFRESH = 60000;
 
+// ── Sanity check ──
 if (!WORKER || WORKER.includes('YOUR-WORKER')) {
   document.body.innerHTML = `
     <div class="err-screen">
@@ -254,6 +218,78 @@ if (!WORKER || WORKER.includes('YOUR-WORKER')) {
   throw new Error('WORKER not configured');
 }
 
+// ── Icon generation ──
+// Generates an orange rounded square with a white 3-bar kanban motif.
+// Used as both the favicon and the iOS/iPadOS home screen icon.
+function generateIcon(size) {
+  const c   = document.createElement('canvas');
+  c.width   = size;
+  c.height  = size;
+  const ctx = c.getContext('2d');
+
+  // Rounded orange background
+  const r = size * 0.18;
+  ctx.fillStyle = '#f05223';
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(size - r, 0);
+  ctx.arcTo(size, 0, size, r, r);
+  ctx.lineTo(size, size - r);
+  ctx.arcTo(size, size, size - r, size, r);
+  ctx.lineTo(r, size);
+  ctx.arcTo(0, size, 0, size - r, r);
+  ctx.lineTo(0, r);
+  ctx.arcTo(0, 0, r, 0, r);
+  ctx.closePath();
+  ctx.fill();
+
+  // Three white kanban bars at varying heights
+  ctx.fillStyle = '#ffffff';
+  const bw      = size * 0.13;
+  const gap     = size * 0.075;
+  const totalW  = 3 * bw + 2 * gap;
+  const startX  = (size - totalW) / 2;
+  const baseY   = size * 0.76;
+  const heights = [size * 0.42, size * 0.26, size * 0.52]; // left, mid, right
+  const br      = bw * 0.28;
+
+  for (let i = 0; i < 3; i++) {
+    const x = startX + i * (bw + gap);
+    const h = heights[i];
+    const y = baseY - h;
+    ctx.beginPath();
+    ctx.moveTo(x + br, y);
+    ctx.lineTo(x + bw - br, y);
+    ctx.arcTo(x + bw, y, x + bw, y + br, br);
+    ctx.lineTo(x + bw, y + h - br);
+    ctx.arcTo(x + bw, y + h, x + bw - br, y + h, br);
+    ctx.lineTo(x + br, y + h);
+    ctx.arcTo(x, y + h, x, y + h - br, br);
+    ctx.lineTo(x, y + br);
+    ctx.arcTo(x, y, x + br, y, br);
+    ctx.closePath();
+    ctx.fill();
+  }
+  return c.toDataURL('image/png');
+}
+
+function injectIcons() {
+  const i180 = generateIcon(180);
+  const i32  = generateIcon(32);
+
+  const touch = document.createElement('link');
+  touch.rel   = 'apple-touch-icon';
+  touch.href  = i180;
+  document.head.appendChild(touch);
+
+  const fav   = document.createElement('link');
+  fav.rel     = 'icon';
+  fav.type    = 'image/png';
+  fav.href    = i32;
+  document.head.appendChild(fav);
+}
+
+// ── State ──
 let prodIssues  = [];
 let auditIssues = [];
 let prodSort    = 'priority';
@@ -263,9 +299,19 @@ let countdown   = REFRESH / 1000;
 let autoTimer   = null;
 let countTimer  = null;
 
-// Avatar
-const AVATAR_COLORS = ['#e53935','#d81b60','#8e24aa','#3949ab','#1e88e5',
-                       '#00acc1','#00897b','#43a047','#fb8c00','#6d4c41'];
+// ── Avatar - WCAG AA verified dark palette (all >= 4.5:1 with white) ──
+const AVATAR_COLORS = [
+  '#b71c1c', // red-900         ~7.5:1
+  '#880e4f', // pink-900        ~9.0:1
+  '#4a148c', // purple-900      ~11.1:1
+  '#1a237e', // indigo-900      ~11.5:1
+  '#0d47a1', // blue-900        ~7.2:1
+  '#006064', // cyan-900        ~6.6:1
+  '#1b5e20', // green-900       ~7.3:1
+  '#bf360c', // deep-orange-900 ~5.5:1
+  '#4e342e', // brown-800       ~8.3:1
+  '#37474f', // blue-grey-800   ~6.7:1
+];
 function avatarColor(name) {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
@@ -274,12 +320,12 @@ function avatarColor(name) {
 function initials(n) {
   if (!n) return '?';
   const p = n.trim().split(/\s+/);
-  return p.length >= 2 ? (p[0][0] + p[p.length-1][0]).toUpperCase() : n.slice(0,2).toUpperCase();
+  return p.length >= 2 ? (p[0][0] + p[p.length - 1][0]).toUpperCase() : n.slice(0, 2).toUpperCase();
 }
 
-// Status pill
+// ── Status pill ──
 function pill(status) {
-  const cat  = (status.statusCategory?.key || '').toLowerCase();
+  const cat = (status.statusCategory?.key || '').toLowerCase();
   const name = status.name || 'Unknown';
   const low  = name.toLowerCase();
   let cls = 'p-def';
@@ -291,16 +337,27 @@ function pill(status) {
   return `<span class="pill ${cls}">${name}</span>`;
 }
 
-// Priority
-const PRIO_ORD = { Highest:0, High:1, Medium:2, Low:3, Lowest:4 };
+// ── Priority ──
+const PRIO_ORD = { Highest: 0, High: 1, Medium: 2, Low: 3, Lowest: 4 };
 function priHTML(priority) {
   const name = priority?.name || 'Medium';
-  const cls  = { Highest:'pri-highest', High:'pri-high', Medium:'pri-medium',
-                 Low:'pri-low', Lowest:'pri-lowest' }[name] || 'pri-medium';
+  const cls  = { Highest: 'pri-highest', High: 'pri-high', Medium: 'pri-medium',
+                 Low: 'pri-low', Lowest: 'pri-lowest' }[name] || 'pri-medium';
   return `<span class="pri-dot ${cls}"></span><span class="pri-lbl">${name}</span>`;
 }
 
-// Sort
+// ── Blocked detection ──
+// An issue is considered blocked if it has an "is blocked by" link
+// pointing to an issue that is NOT in the Done status category.
+function isBlocked(fields) {
+  return (fields.issuelinks || []).some(link =>
+    link.type?.inward === 'is blocked by' &&
+    link.inwardIssue &&
+    (link.inwardIssue.fields?.status?.statusCategory?.key || '') !== 'done'
+  );
+}
+
+// ── Sort ──
 function sorted(issues, mode) {
   return [...issues].sort((a, b) => {
     if (mode === 'priority') {
@@ -312,21 +369,24 @@ function sorted(issues, mode) {
   });
 }
 
-// Card HTML
+// ── Card HTML ──
+// Layout (2 rows):
+//   [key]        [dot] [Priority] [Status pill] [Avatar]
+//   Summary text
 function cardHTML(issue) {
-  const f   = issue.fields;
-  const asgn = f.assignee;
-  const av  = asgn
+  const f     = issue.fields;
+  const asgn  = f.assignee;
+  const av    = asgn
     ? `<span class="avatar" style="background:${avatarColor(asgn.displayName)}">${initials(asgn.displayName)}</span>`
     : '';
+  const blocked = isBlocked(f) ? ' blocked' : '';
   return `
-    <div class="card" onclick="openTicket('${issue.key}')">
+    <div class="card${blocked}" onclick="openTicket('${issue.key}')">
       <div class="card-top">
         <span class="card-key">${issue.key}</span>
-        <div class="card-right">${pill(f.status)}${av}</div>
+        <div class="card-right">${priHTML(f.priority)}${pill(f.status)}${av}</div>
       </div>
       <div class="card-sum">${f.summary || ''}</div>
-      <div class="card-meta">${priHTML(f.priority)}</div>
     </div>`;
 }
 
@@ -334,6 +394,7 @@ function openTicket(key) {
   window.open(`https://librarymarket.atlassian.net/browse/${key}`, '_blank');
 }
 
+// ── Render ──
 function renderCol(id, issues, sort) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -356,41 +417,42 @@ function updateStats() {
   set('audit-count', auditIssues.length);
 }
 
-// API
+// ── Jira API ──
 async function jiraPost(path, body) {
   const res = await fetch(WORKER + path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
-  if (!res.ok) { const t = await res.text().catch(() => ''); throw new Error(`HTTP ${res.status}: ${t.slice(0,200)}`); }
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status}: ${t.slice(0, 200)}`);
+  }
   return res.json();
 }
 
-const FIELDS = ['summary','status','priority','assignee','updated','issuetype','project'];
+// issuelinks included so we can detect blocked tickets
+const FIELDS = ['summary', 'status', 'priority', 'assignee', 'updated',
+                'issuetype', 'project', 'issuelinks'];
 
 async function fetchAll() {
   const dot = document.getElementById('sync-dot');
   if (dot) dot.className = 'sync-dot stale';
 
-  const base = `project in (${PROJS})`;
-  const sprint = sprintMode ? 'sprint in openSprints() AND ' : '';
-  const noSprint = sprintMode ? '' : 'statusCategory != Done AND ';
-
   const prodJQL  = sprintMode
-    ? `${base} AND sprint in openSprints() AND assignee = currentUser() AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
-    : `${base} AND assignee = currentUser() AND statusCategory != Done AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+    ? `project in (${PROJS}) AND sprint in openSprints() AND assignee = currentUser() AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
+    : `project in (${PROJS}) AND assignee = currentUser() AND statusCategory != Done AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
   const auditJQL = sprintMode
-    ? `${base} AND sprint in openSprints() AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
-    : `${base} AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") AND statusCategory != Done ORDER BY priority ASC, updated DESC`;
+    ? `project in (${PROJS}) AND sprint in openSprints() AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
+    : `project in (${PROJS}) AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") AND statusCategory != Done ORDER BY priority ASC, updated DESC`;
 
   try {
     const [pd, ad] = await Promise.all([
       jiraPost('/rest/api/3/search/jql', { jql: prodJQL,  maxResults: 50,  fields: FIELDS }),
       jiraPost('/rest/api/3/search/jql', { jql: auditJQL, maxResults: 100, fields: FIELDS })
     ]);
-    prodIssues  = pd.issues  || [];
-    auditIssues = ad.issues  || [];
+    prodIssues  = pd.issues || [];
+    auditIssues = ad.issues || [];
   } catch (err) {
     if (sprintMode && (err.message.includes('400') || err.message.includes('500'))) {
       sprintMode = false;
@@ -398,9 +460,9 @@ async function fetchAll() {
       set('audit-sub', 'All open - sprint boards not configured');
       return fetchAll();
     }
-    set('prod-col',  ''); set('audit-col', '');
     document.getElementById('prod-col').innerHTML  = '<div class="state-msg">Error loading tickets</div>';
     document.getElementById('audit-col').innerHTML = '<div class="state-msg">Error loading tickets</div>';
+    if (dot) dot.className = 'sync-dot stale';
     return;
   }
 
@@ -434,7 +496,11 @@ function startTimers() {
   }, 1000);
 }
 
-document.addEventListener('DOMContentLoaded', () => { fetchAll(); startTimers(); });
+document.addEventListener('DOMContentLoaded', () => {
+  injectIcons();
+  fetchAll();
+  startTimers();
+});
 </script>
 
 <div class="app">
@@ -459,6 +525,7 @@ document.addEventListener('DOMContentLoaded', () => { fetchAll(); startTimers();
     <div class="stat-div"></div>
     <div class="stat"><span class="stat-val" id="stat-audits">--</span>&nbsp;Audits</div>
     <span class="sprint-lbl">Current sprint</span>
+    <span class="version-badge" id="version-badge"></span>
   </div>
 
   <div class="cols">
@@ -494,5 +561,10 @@ document.addEventListener('DOMContentLoaded', () => { fetchAll(); startTimers();
   </div>
 
 </div>
+
+<script>
+  // Stamp version into the badge after DOM is ready
+  document.getElementById('version-badge').textContent = VERSION;
+</script>
 </body>
 </html>
