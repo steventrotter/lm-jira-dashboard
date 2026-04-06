@@ -14,15 +14,15 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #2d3035;
-      --bg-dark:   #22252a;
-      --bg-mid:    #272b30;
-      --border:    rgba(255,255,255,0.07);
-      --orange:    #f05223;
-      --teal:      #00b9ae;
-      --text:      #f5f5f2;
-      --muted:     #9a9690;
-      --dim:       #6b6862;
+      --bg:      #2d3035;
+      --bg-dark: #22252a;
+      --bg-mid:  #272b30;
+      --border:  rgba(255,255,255,0.07);
+      --orange:  #f05223;
+      --teal:    #00b9ae;
+      --text:    #f5f5f2;
+      --muted:   #9a9690;
+      --dim:     #6b6862;
     }
 
     html, body {
@@ -34,109 +34,8 @@
       overflow: hidden;
     }
 
-    /* ─── SETUP SCREEN ─── */
-    #setup {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .setup-card {
-      background: var(--bg-dark);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 44px 40px;
-      width: 100%;
-      max-width: 500px;
-    }
-
-    .setup-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-
-    .bdot { width: 10px; height: 10px; border-radius: 50%; }
-    .bdot-o { background: var(--orange); }
-    .bdot-t { background: var(--teal); }
-
-    .setup-brand-label {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--text);
-    }
-
-    .setup-h { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
-
-    .setup-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.65;
-      margin-bottom: 32px;
-    }
-
-    .setup-desc a { color: var(--teal); text-decoration: none; }
-
-    .setup-label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-bottom: 8px;
-      letter-spacing: 0.03em;
-    }
-
-    .setup-input {
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px;
-      padding: 13px 14px;
-      font-family: inherit;
-      font-size: 13px;
-      color: var(--text);
-      outline: none;
-      margin-bottom: 20px;
-      letter-spacing: 0.04em;
-      transition: border-color 0.15s;
-    }
-
-    .setup-input:focus { border-color: var(--teal); }
-    .setup-input::placeholder { color: rgba(255,255,255,0.18); }
-
-    .setup-btn {
-      width: 100%;
-      background: var(--teal);
-      border: none;
-      border-radius: 8px;
-      padding: 14px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      color: #051a1a;
-      cursor: pointer;
-      letter-spacing: 0.02em;
-      transition: opacity 0.12s;
-    }
-
-    .setup-btn:disabled { opacity: 0.5; cursor: default; }
-    .setup-btn:not(:disabled):active { opacity: 0.8; }
-
-    .setup-error {
-      margin-top: 14px;
-      font-size: 12px;
-      color: #ef7070;
-      text-align: center;
-      min-height: 18px;
-    }
-
-    /* ─── DASHBOARD ─── */
     #dash {
+      display: flex;
       flex-direction: column;
       height: 100vh;
       overflow: hidden;
@@ -164,6 +63,9 @@
 
     .dh-r { display: flex; align-items: center; gap: 8px; }
 
+    .bdot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .bdot-o { background: var(--orange); }
+
     .sync-dot {
       width: 7px; height: 7px;
       border-radius: 50%;
@@ -171,9 +73,9 @@
       flex-shrink: 0;
     }
 
-    .sync-dot.busy   { background: #f0a023; }
-    .sync-dot.ok     { background: var(--teal); }
-    .sync-dot.err    { background: #ef7070; }
+    .sync-dot.busy { background: #f0a023; }
+    .sync-dot.ok   { background: var(--teal); }
+    .sync-dot.err  { background: #ef7070; }
 
     .sync-lbl { font-size: 11px; color: var(--dim); }
 
@@ -186,7 +88,6 @@
       font-size: 11px;
       color: var(--dim);
       cursor: pointer;
-      margin-left: 4px;
     }
 
     .hdr-btn:active { opacity: 0.7; }
@@ -206,12 +107,7 @@
     .sn { font-size: 13px; font-weight: 600; }
     .sl { font-size: 11px; color: var(--dim); }
 
-    .sb-divider {
-      width: 1px;
-      height: 14px;
-      background: rgba(255,255,255,0.08);
-      margin: 0 2px;
-    }
+    .sb-div { width: 1px; height: 14px; background: rgba(255,255,255,0.08); }
 
     .sprint-name {
       font-size: 11px;
@@ -337,7 +233,6 @@
     .card-l { display: flex; align-items: center; gap: 6px; }
     .card-r { display: flex; align-items: center; gap: 7px; }
 
-    /* Project badge */
     .proj {
       font-size: 10px;
       font-weight: 600;
@@ -350,14 +245,10 @@
     .proj-PRO { background: rgba(240,82,35,0.18);   color: #f07a5a; }
     .proj-LC  { background: rgba(0,185,174,0.15);   color: var(--teal); }
 
-    /* Priority dot */
     .pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .plbl { font-size: 10px; color: var(--dim); }
-
-    /* Time ago */
     .tago { font-size: 10px; color: var(--dim); }
 
-    /* Avatar */
     .av {
       width: 20px; height: 20px;
       border-radius: 50%;
@@ -366,20 +257,12 @@
       flex-shrink: 0;
     }
 
-    /* Status Pills */
-    .pill {
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
+    .pill { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
     .p-new      { background: rgba(255,255,255,0.07); color: var(--muted); }
     .p-progress { background: rgba(0,185,174,0.15);   color: var(--teal); }
     .p-done     { background: rgba(34,197,94,0.13);   color: #3eda7e; }
 
-    /* Loading skeletons */
+    /* Skeletons */
     .skel {
       background: rgba(255,255,255,0.05);
       border-radius: 8px;
@@ -396,7 +279,6 @@
       50%       { opacity: 0.65; }
     }
 
-    /* State messages */
     .msg {
       text-align: center;
       padding: 36px 20px;
@@ -412,39 +294,52 @@
       margin-bottom: 4px;
       font-size: 13px;
     }
+
+    /* Shown if WORKER placeholder not replaced */
+    #not-configured {
+      display: none;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .cfg-card {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 44px 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .cfg-card h1 { font-size: 18px; font-weight: 600; margin-bottom: 14px; }
+
+    .cfg-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+    .cfg-card code {
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 12px;
+      color: var(--teal);
+    }
   </style>
 </head>
 <body>
 
-<!-- ═══ SETUP SCREEN ═══ -->
-<div id="setup">
-  <div class="setup-card">
-    <div class="setup-brand">
-      <div class="bdot bdot-o"></div>
-      <span class="setup-brand-label">Library Market &nbsp;/&nbsp; Jira Dashboard</span>
-    </div>
-    <h1 class="setup-h">Connect your account</h1>
-    <p class="setup-desc">
-      Enter your Atlassian API token to connect this dashboard to Jira.<br><br>
-      Generate a token at <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank">id.atlassian.com &rsaquo; Security &rsaquo; API tokens</a>. Your token is stored only on this device and sent directly to Jira — nothing else sees it.
+<div id="not-configured">
+  <div class="cfg-card">
+    <h1>Worker URL not set</h1>
+    <p>
+      Open <code>index.html</code> and replace the placeholder in the
+      <code>WORKER</code> constant at the top of the script with your
+      Cloudflare Worker URL, then re-upload to GitHub.
     </p>
-    <label class="setup-label" for="tokenInput">Atlassian API Token</label>
-    <input
-      type="password"
-      id="tokenInput"
-      class="setup-input"
-      placeholder="Paste your API token here"
-      autocomplete="off"
-      autocorrect="off"
-      spellcheck="false"
-    >
-    <button class="setup-btn" id="connectBtn">Connect to Jira</button>
-    <div class="setup-error" id="setupErr"></div>
   </div>
 </div>
 
-<!-- ═══ DASHBOARD ═══ -->
-<div id="dash" style="display:none">
+<div id="dash">
 
   <div class="dh">
     <div class="dh-l">
@@ -455,28 +350,15 @@
       <div class="sync-dot" id="syncDot"></div>
       <span class="sync-lbl" id="syncLbl">Loading...</span>
       <button class="hdr-btn" id="refreshBtn">Refresh</button>
-      <button class="hdr-btn" id="resetBtn">Reset</button>
     </div>
   </div>
 
   <div class="sb">
-    <div class="st">
-      <span class="sn" id="sOpen"  style="color:var(--text)">--</span>
-      <span class="sl">Open</span>
-    </div>
-    <div class="st">
-      <span class="sn" id="sInProg" style="color:var(--teal)">--</span>
-      <span class="sl">In Progress</span>
-    </div>
-    <div class="st">
-      <span class="sn" id="sDone" style="color:#3eda7e">--</span>
-      <span class="sl">Done</span>
-    </div>
-    <div class="sb-divider"></div>
-    <div class="st">
-      <span class="sn" id="sAudits" style="color:#9d93f5">--</span>
-      <span class="sl">Audits</span>
-    </div>
+    <div class="st"><span class="sn" id="sOpen"   style="color:var(--text)">--</span><span class="sl">Open</span></div>
+    <div class="st"><span class="sn" id="sInProg" style="color:var(--teal)">--</span><span class="sl">In Progress</span></div>
+    <div class="st"><span class="sn" id="sDone"   style="color:#3eda7e">--</span><span class="sl">Done</span></div>
+    <div class="sb-div"></div>
+    <div class="st"><span class="sn" id="sAudits" style="color:#9d93f5">--</span><span class="sl">Audits</span></div>
     <span class="sprint-name" id="sprintName"></span>
   </div>
 
@@ -493,7 +375,7 @@
 
   <div class="cols">
     <div class="col prod-col" id="prodCol">
-      <div class="col-meta">Current sprint &middot; Assigned to you</div>
+      <div class="col-meta">Current sprint &middot; Assigned to Steven</div>
       <div class="skel" style="height:82px"></div>
       <div class="skel" style="height:70px"></div>
       <div class="skel" style="height:82px"></div>
@@ -512,25 +394,19 @@
 <script>
 'use strict';
 
-/* ── CONFIG ── */
-const C = {
-  base:    'https://librarymarket.atlassian.net',
-  email:   'steven@librarymarket.com',
-  projs:   'SUP,PRO,LC',
-  key:     'lm_jira_token',
-  refresh: 60000
-};
+/**
+ * After deploying your Cloudflare Worker, paste its URL here.
+ * Example: 'https://lm-jira-proxy.steventrotter.workers.dev'
+ */
+const WORKER = 'https://lm-jira-proxy.hey-c75.workers.dev';
 
-/* ── STORAGE ── */
-const getToken  = ()    => localStorage.getItem(C.key);
-const saveToken = (t)   => localStorage.setItem(C.key, t);
-const clearToken = ()   => localStorage.removeItem(C.key);
+const PROJS   = 'SUP,PRO,LC';
+const REFRESH = 60000;
 
-function authHdr() {
-  return {
-    'Authorization': 'Basic ' + btoa(C.email + ':' + getToken()),
-    'Accept': 'application/json'
-  };
+if (WORKER.includes('YOUR-WORKER-NAME')) {
+  document.getElementById('dash').style.display           = 'none';
+  document.getElementById('not-configured').style.display = 'flex';
+  throw new Error('Worker URL not configured.');
 }
 
 /* ── HELPERS ── */
@@ -542,9 +418,9 @@ function esc(s) {
 
 function timeAgo(iso) {
   const d = Math.floor((Date.now() - new Date(iso)) / 1000);
-  if (d < 60)   return 'just now';
-  if (d < 3600) return Math.floor(d/60) + 'm ago';
-  if (d < 86400)return Math.floor(d/3600) + 'h ago';
+  if (d < 60)    return 'just now';
+  if (d < 3600)  return Math.floor(d/60) + 'm ago';
+  if (d < 86400) return Math.floor(d/3600) + 'h ago';
   return Math.floor(d/86400) + 'd ago';
 }
 
@@ -557,11 +433,11 @@ function initials(name) {
 }
 
 const AV_COLORS = [
-  ['rgba(240,82,35,0.22)',  '#f07a5a'],
-  ['rgba(0,185,174,0.22)',  '#00b9ae'],
-  ['rgba(122,110,240,0.22)','#9d93f5'],
-  ['rgba(240,160,35,0.22)', '#f0b03e'],
-  ['rgba(34,197,94,0.18)',  '#3eda7e'],
+  ['rgba(240,82,35,0.22)',   '#f07a5a'],
+  ['rgba(0,185,174,0.22)',   '#00b9ae'],
+  ['rgba(122,110,240,0.22)', '#9d93f5'],
+  ['rgba(240,160,35,0.22)',  '#f0b03e'],
+  ['rgba(34,197,94,0.18)',   '#3eda7e'],
 ];
 
 function avColor(name) {
@@ -581,8 +457,8 @@ function prioColor(p) {
 }
 
 function pillClass(cat) {
-  if (cat === 'done')         return 'p-done';
-  if (cat === 'indeterminate')return 'p-progress';
+  if (cat === 'done')          return 'p-done';
+  if (cat === 'indeterminate') return 'p-progress';
   return 'p-new';
 }
 
@@ -590,13 +466,13 @@ function pillClass(cat) {
 const FIELDS = 'summary,status,priority,assignee,updated,issuetype,project';
 
 async function jiraGet(path) {
-  const r = await fetch(C.base + path, { headers: authHdr() });
+  const r = await fetch(WORKER + path);
   if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
   return r.json();
 }
 
 async function search(jql, fallback) {
-  const q = (j) => `/rest/api/3/search?maxResults=50&fields=${FIELDS}&jql=${encodeURIComponent(j)}`;
+  const q = j => `/rest/api/3/search?maxResults=50&fields=${FIELDS}&jql=${encodeURIComponent(j)}`;
   try {
     const d = await jiraGet(q(jql));
     return { issues: d.issues || [], usedFallback: false };
@@ -610,23 +486,22 @@ async function search(jql, fallback) {
 }
 
 /* ── JQL ── */
-const SPRINT_PROD = `project in (${C.projs}) AND sprint in openSprints() AND assignee = currentUser() AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
-const OPEN_PROD   = `project in (${C.projs}) AND assignee = currentUser() AND statusCategory != Done AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
-
-const SPRINT_AUDIT = `project in (${C.projs}) AND sprint in openSprints() AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY updated DESC`;
-const OPEN_AUDIT   = `project in (${C.projs}) AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") AND statusCategory != Done ORDER BY updated DESC`;
+const SPRINT_PROD  = `project in (${PROJS}) AND sprint in openSprints() AND assignee = currentUser() AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+const OPEN_PROD    = `project in (${PROJS}) AND assignee = currentUser() AND statusCategory != Done AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+const SPRINT_AUDIT = `project in (${PROJS}) AND sprint in openSprints() AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY updated DESC`;
+const OPEN_AUDIT   = `project in (${PROJS}) AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") AND statusCategory != Done ORDER BY updated DESC`;
 
 /* ── RENDER ── */
 function card(issue) {
-  const f   = issue.fields;
-  const key = issue.key;
-  const proj= key.split('-')[0];
-  const cat = f.status?.statusCategory?.key  || 'new';
-  const sName = f.status?.name || 'Unknown';
-  const prio  = f.priority?.name || '';
-  const who   = f.assignee?.displayName || '';
+  const f    = issue.fields;
+  const key  = issue.key;
+  const proj = key.split('-')[0];
+  const cat  = f.status?.statusCategory?.key || 'new';
+  const sName= f.status?.name || 'Unknown';
+  const prio = f.priority?.name || '';
+  const who  = f.assignee?.displayName || '';
   const [bg, fg] = avColor(who);
-  const href = `${C.base}/browse/${esc(key)}`;
+  const href = `https://librarymarket.atlassian.net/browse/${esc(key)}`;
 
   return `<a class="card" href="${href}" target="_blank">
     <div class="card-top">
@@ -653,12 +528,11 @@ function msgHtml(head, body) {
 }
 
 /* ── STATE ── */
-let ticker = null;
-let countdown = null;
+let ticker = null, countdown = null;
 
 function setSyncState(state, label) {
-  document.getElementById('syncDot').className = 'sync-dot ' + state;
-  document.getElementById('syncLbl').textContent = label;
+  document.getElementById('syncDot').className    = 'sync-dot ' + state;
+  document.getElementById('syncLbl').textContent  = label;
 }
 
 function startCountdown() {
@@ -667,23 +541,18 @@ function startCountdown() {
   countdown = setInterval(() => {
     s++;
     const lbl = document.getElementById('syncLbl');
-    if (s < 10)        lbl.textContent = 'Synced just now';
-    else if (s < 60)   lbl.textContent = `Synced ${s}s ago`;
-    else               lbl.textContent = `Synced ${Math.floor(s/60)}m ago`;
+    if (s < 10)      lbl.textContent = 'Synced just now';
+    else if (s < 60) lbl.textContent = `Synced ${s}s ago`;
+    else             lbl.textContent = `Synced ${Math.floor(s/60)}m ago`;
   }, 1000);
 }
 
 function updateStats(prod, audit) {
   const all = [...prod, ...audit];
-  const open    = all.filter(i => i.fields.status?.statusCategory?.key !== 'done').length;
-  const inProg  = all.filter(i => i.fields.status?.statusCategory?.key === 'indeterminate').length;
-  const done    = all.filter(i => i.fields.status?.statusCategory?.key === 'done').length;
-  const audits  = audit.length;
-
-  document.getElementById('sOpen').textContent   = open;
-  document.getElementById('sInProg').textContent = inProg;
-  document.getElementById('sDone').textContent   = done;
-  document.getElementById('sAudits').textContent = audits;
+  document.getElementById('sOpen').textContent   = all.filter(i => i.fields.status?.statusCategory?.key !== 'done').length;
+  document.getElementById('sInProg').textContent = all.filter(i => i.fields.status?.statusCategory?.key === 'indeterminate').length;
+  document.getElementById('sDone').textContent   = all.filter(i => i.fields.status?.statusCategory?.key === 'done').length;
+  document.getElementById('sAudits').textContent = audit.length;
 }
 
 /* ── LOAD ── */
@@ -692,45 +561,42 @@ async function load() {
 
   const prodCol  = document.getElementById('prodCol');
   const auditCol = document.getElementById('auditCol');
-  const prodMeta  = 'Current sprint &middot; Assigned to you';
-  const auditMeta = 'Current sprint &middot; All assignees';
-  const openMeta  = 'Open tickets &middot; Assigned to you';
-  const openAuditMeta = 'Open tickets &middot; All assignees';
 
   try {
     const [pRes, aRes] = await Promise.all([
       search(SPRINT_PROD, OPEN_PROD),
-      search(SPRINT_AUDIT, OPEN_AUDIT)
+      search(SPRINT_AUDIT, OPEN_AUDIT),
     ]);
 
     const pIssues = pRes.issues;
     const aIssues = aRes.issues;
-    const pMeta   = pRes.usedFallback ? openMeta  : prodMeta;
-    const aMeta   = aRes.usedFallback ? openAuditMeta : auditMeta;
+    const fallback = pRes.usedFallback;
 
-    // Sprint name hint
-    const sprintEl = document.getElementById('sprintName');
-    sprintEl.textContent = pRes.usedFallback ? 'No active sprint - showing all open' : 'Active sprint';
+    document.getElementById('sprintName').textContent = fallback
+      ? 'No active sprint - showing all open'
+      : 'Active sprint';
 
-    // Production column
-    document.getElementById('prodCount').textContent = pIssues.length;
-    if (pIssues.length === 0) {
-      prodCol.innerHTML = `<div class="col-meta">${pMeta}</div>` +
-        msgHtml('All clear', 'No open tickets assigned to you.');
-    } else {
-      prodCol.innerHTML = `<div class="col-meta">${pMeta}</div>` +
-        pIssues.map(card).join('');
-    }
+    const pMeta = fallback
+      ? 'Open tickets &middot; Assigned to Steven'
+      : 'Current sprint &middot; Assigned to Steven';
+    const aMeta = aRes.usedFallback
+      ? 'Open tickets &middot; All assignees'
+      : 'Current sprint &middot; All assignees';
 
-    // Audit column
+    document.getElementById('prodCount').textContent  = pIssues.length;
     document.getElementById('auditCount').textContent = aIssues.length;
-    if (aIssues.length === 0) {
-      auditCol.innerHTML = `<div class="col-meta">${aMeta}</div>` +
-        msgHtml('No audits', 'No accessibility audit tickets found.');
-    } else {
-      auditCol.innerHTML = `<div class="col-meta">${aMeta}</div>` +
-        aIssues.map(card).join('');
-    }
+
+    prodCol.innerHTML = `<div class="col-meta">${pMeta}</div>` + (
+      pIssues.length === 0
+        ? msgHtml('All clear', 'No open tickets assigned to you.')
+        : pIssues.map(card).join('')
+    );
+
+    auditCol.innerHTML = `<div class="col-meta">${aMeta}</div>` + (
+      aIssues.length === 0
+        ? msgHtml('No audits', 'No accessibility audit tickets in this sprint.')
+        : aIssues.map(card).join('')
+    );
 
     updateStats(pIssues, aIssues);
     setSyncState('ok', 'Synced just now');
@@ -738,88 +604,20 @@ async function load() {
 
   } catch(e) {
     console.error(e);
-    if (e.status === 401) {
-      setSyncState('err', 'Auth failed - tap Reset');
-      prodCol.innerHTML  = `<div class="col-meta">${prodMeta}</div>` +
-        msgHtml('Authentication failed', 'Your token may have expired. Tap Reset to enter a new one.');
-      auditCol.innerHTML = `<div class="col-meta">${auditMeta}</div>`;
-      document.getElementById('prodCount').textContent  = '--';
-      document.getElementById('auditCount').textContent = '--';
-    } else {
-      setSyncState('err', 'Error - will retry in 60s');
-      prodCol.innerHTML  = `<div class="col-meta">${prodMeta}</div>` +
-        msgHtml('Could not reach Jira', 'Check your connection. The dashboard will retry automatically.');
-      auditCol.innerHTML = `<div class="col-meta">${auditMeta}</div>`;
-    }
+    setSyncState('err', 'Error - will retry in 60s');
+    const errMsg = e.status === 401
+      ? 'Authentication error. The Worker secret may need updating.'
+      : 'Could not reach Jira. Check your connection or Worker logs.';
+    prodCol.innerHTML  = `<div class="col-meta">Current sprint &middot; Assigned to Steven</div>` + msgHtml('Error', errMsg);
+    auditCol.innerHTML = `<div class="col-meta">Current sprint &middot; All assignees</div>`;
+    document.getElementById('prodCount').textContent  = '--';
+    document.getElementById('auditCount').textContent = '--';
   }
 }
-
-/* ── DASHBOARD START ── */
-function startDashboard() {
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('dash').style.display  = 'flex';
-  load();
-  if (ticker) clearInterval(ticker);
-  ticker = setInterval(load, C.refresh);
-}
-
-/* ── SETUP ── */
-function showSetup(errMsg) {
-  if (ticker)    { clearInterval(ticker);    ticker    = null; }
-  if (countdown) { clearInterval(countdown); countdown = null; }
-  document.getElementById('dash').style.display  = 'none';
-  document.getElementById('setup').style.display = 'flex';
-  if (errMsg) document.getElementById('setupErr').textContent = errMsg;
-}
-
-document.getElementById('connectBtn').addEventListener('click', async () => {
-  const token = document.getElementById('tokenInput').value.trim();
-  if (!token) {
-    document.getElementById('setupErr').textContent = 'Please paste your API token.';
-    return;
-  }
-
-  const btn = document.getElementById('connectBtn');
-  btn.textContent = 'Connecting...';
-  btn.disabled = true;
-  document.getElementById('setupErr').textContent = '';
-
-  try {
-    const r = await fetch(`${C.base}/rest/api/3/myself`, {
-      headers: {
-        'Authorization': 'Basic ' + btoa(C.email + ':' + token),
-        'Accept': 'application/json'
-      }
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    saveToken(token);
-    startDashboard();
-  } catch(e) {
-    document.getElementById('setupErr').textContent =
-      'Could not connect. Double-check your token and try again.';
-    btn.textContent = 'Connect to Jira';
-    btn.disabled = false;
-  }
-});
-
-document.getElementById('tokenInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('connectBtn').click();
-});
 
 document.getElementById('refreshBtn').addEventListener('click', load);
-
-document.getElementById('resetBtn').addEventListener('click', () => {
-  if (confirm('Clear your saved token and return to the setup screen?')) {
-    clearToken();
-    document.getElementById('tokenInput').value = '';
-    showSetup();
-  }
-});
-
-/* ── INIT ── */
-if (getToken()) {
-  startDashboard();
-}
+load();
+ticker = setInterval(load, REFRESH);
 </script>
 </body>
 </html>
