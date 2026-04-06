@@ -116,18 +116,17 @@
       font-style: italic;
     }
 
-    /* Column Headers */
-    .col-hdrs {
-      display: grid;
-      grid-template-columns: 3fr 2fr;
-      flex-shrink: 0;
-    }
-
+    /* Column Headers - sticky inside each column */
     .col-hdr {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--bg);
       padding: 9px 14px;
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .col-hdr.prod {
@@ -341,10 +340,8 @@
       .sprint-name { margin-left: 0; width: 100%; order: 99; }
       .sb-div { display: none; }
 
-      /* Column headers: stack vertically, full width */
-      .col-hdrs { grid-template-columns: 1fr; }
-      .col-hdr.prod { border-right: none; }
-      .col-hdr.audit { border-top: 1px solid var(--border); }
+      /* Column headers sit inside each column - no grid override needed */
+      .col-hdr { position: static; border-right: none !important; }
 
       /* Columns: stack vertically, auto height */
       .cols {
@@ -420,19 +417,12 @@
     <span class="sprint-name" id="sprintName"></span>
   </div>
 
-  <div class="col-hdrs">
-    <div class="col-hdr prod">
-      <span class="col-hdr-title">Steven's Production Tasks</span>
-      <span class="col-hdr-count" id="prodCount">--</span>
-    </div>
-    <div class="col-hdr audit">
-      <span class="col-hdr-title">Accessibility Audits</span>
-      <span class="col-hdr-count" id="auditCount">--</span>
-    </div>
-  </div>
-
   <div class="cols">
     <div class="col prod-col" id="prodCol">
+      <div class="col-hdr prod">
+        <span class="col-hdr-title">Steven's Production Tasks</span>
+        <span class="col-hdr-count" id="prodCount">--</span>
+      </div>
       <div class="col-meta">Current sprint &middot; Assigned to Steven</div>
       <div class="skel" style="height:82px"></div>
       <div class="skel" style="height:70px"></div>
@@ -440,6 +430,10 @@
       <div class="skel" style="height:70px"></div>
     </div>
     <div class="col audit-col" id="auditCol">
+      <div class="col-hdr audit">
+        <span class="col-hdr-title">Accessibility Audits</span>
+        <span class="col-hdr-count" id="auditCount">--</span>
+      </div>
       <div class="col-meta">Current sprint &middot; All assignees</div>
       <div class="skel" style="height:82px"></div>
       <div class="skel" style="height:70px"></div>
