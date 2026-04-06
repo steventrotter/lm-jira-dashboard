@@ -398,7 +398,7 @@
  * After deploying your Cloudflare Worker, paste its URL here.
  * Example: 'https://lm-jira-proxy.steventrotter.workers.dev'
  */
-const WORKER = 'https://lm-jira-proxy.hey-c75.workers.dev';
+const WORKER = 'https://YOUR-WORKER-NAME.workers.dev';
 
 const PROJS   = 'SUP,PRO,LC';
 const REFRESH = 60000;
@@ -463,22 +463,26 @@ function pillClass(cat) {
 }
 
 /* ── API ── */
-const FIELDS = 'summary,status,priority,assignee,updated,issuetype,project';
+const FIELDS = ['summary','status','priority','assignee','updated','issuetype','project'];
 
-async function jiraGet(path) {
-  const r = await fetch(WORKER + path);
+async function jiraPost(path, body) {
+  const r = await fetch(WORKER + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
   if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
   return r.json();
 }
 
 async function search(jql, fallback) {
-  const q = j => `/rest/api/3/search?maxResults=50&fields=${FIELDS}&jql=${encodeURIComponent(j)}`;
+  const payload = j => ({ jql: j, maxResults: 50, fields: FIELDS });
   try {
-    const d = await jiraGet(q(jql));
+    const d = await jiraPost('/rest/api/3/search/jql', payload(jql));
     return { issues: d.issues || [], usedFallback: false };
   } catch(e) {
     if ((e.status === 400 || e.status === 500) && fallback) {
-      const d = await jiraGet(q(fallback));
+      const d = await jiraPost('/rest/api/3/search/jql', payload(fallback));
       return { issues: d.issues || [], usedFallback: true };
     }
     throw e;
