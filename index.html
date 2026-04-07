@@ -103,9 +103,8 @@
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: border-color .15s, color .15s; font-size: 12px;
   }
-  .sort-btn:hover { border-color: var(--orange); color: var(--text); }
-  .sort-btn.active { border-color: var(--orange); color: var(--orange); }
-  .col-wrap.audit-wrap .sort-btn.active { border-color: var(--teal); color: var(--teal); }
+  .sort-btn:hover { border-color: var(--teal); color: var(--text); }
+  .sort-btn.active { border-color: var(--teal); color: var(--teal); }
 
   /* -- SCROLL AREA -- */
   .col { overflow-y: auto; flex: 1; padding: 9px 11px; min-height: 0; }
@@ -212,7 +211,7 @@
 <body>
 
 <script>
-const VERSION = 'v2.3.0';
+const VERSION = 'v2.3.1';
 const WORKER  = 'https://lm-jira-proxy.hey-c75.workers.dev';
 const PROJS   = 'SUP,PRO,LC';
 const REFRESH = 60000;
