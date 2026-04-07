@@ -27,6 +27,44 @@
   html, body { height: 100%; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
   .app { display: flex; flex-direction: column; height: 100vh; }
 
+  /* -- LOCK SCREEN -- */
+  .lock-screen {
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--bg);
+    display: none; align-items: center; justify-content: center;
+  }
+  .lock-screen.visible { display: flex; }
+  .lock-box {
+    background: var(--bg-dark);
+    border: 1px solid #3e4349;
+    border-radius: 10px;
+    padding: 36px 40px;
+    width: 300px;
+    display: flex; flex-direction: column; gap: 13px;
+    text-align: center;
+  }
+  .lock-logo {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: #666;
+  }
+  .lock-title {
+    font-size: 15px; font-weight: 700; color: var(--text); margin-top: -4px;
+  }
+  .lock-input {
+    background: var(--bg-mid); border: 1px solid #3e4349; border-radius: 5px;
+    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 13px;
+    padding: 9px 12px; outline: none; width: 100%;
+    transition: border-color .15s;
+  }
+  .lock-input:focus { border-color: var(--teal); }
+  .lock-btn {
+    background: var(--teal); color: #0a1f1e; border: none; border-radius: 5px;
+    padding: 9px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: opacity .15s; letter-spacing: .03em;
+  }
+  .lock-btn:hover { opacity: .85; }
+  .lock-err { font-size: 11.5px; color: #ff5252; min-height: 15px; }
+
   /* -- HEADER -- */
   .hdr {
     background: var(--bg-dark);
@@ -86,7 +124,7 @@
     display: flex; align-items: center; justify-content: space-between;
     flex-shrink: 0;
   }
-  .col-hdr-left { display: flex; flex-direction: column; gap: 1px; }
+  .col-hdr-left { display: flex; flex-direction: column; gap: 2px; }
   .col-title {
     font-size: 11.5px; font-weight: 700; letter-spacing: .1em;
     text-transform: uppercase; display: flex; align-items: center; gap: 7px;
@@ -95,7 +133,7 @@
     background: #3e4349; color: var(--dim);
     font-size: 10px; font-weight: 600; border-radius: 10px; padding: 1px 6px;
   }
-  .col-sub { font-size: 10px; color: var(--dim); font-style: italic; }
+  .col-sub { font-size: 10px; color: var(--dim); font-style: italic; display: flex; align-items: center; gap: 4px; }
   .col-sort { display: flex; gap: 4px; }
   .sort-btn {
     background: none; border: 1px solid #3e4349; border-radius: 4px;
@@ -105,6 +143,29 @@
   }
   .sort-btn:hover { border-color: var(--teal); color: var(--text); }
   .sort-btn.active { border-color: var(--teal); color: var(--teal); }
+
+  /* -- ASSIGNEE DROPDOWN -- */
+  .assignee-select {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #3e4349;
+    color: var(--dim);
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-style: italic;
+    cursor: pointer;
+    outline: none;
+    padding: 0 14px 0 2px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath fill='%23666' d='M0 0l4 5 4-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 2px center;
+    transition: border-color .15s, color .15s;
+  }
+  .assignee-select:hover { border-color: #666; color: var(--text); }
+  .assignee-select:focus { border-color: var(--teal); }
+  .assignee-select option { background: var(--bg-dark); color: var(--text); font-style: normal; }
 
   /* -- SCROLL AREA -- */
   .col { overflow-y: auto; flex: 1; padding: 9px 11px; min-height: 0; }
@@ -173,7 +234,6 @@
   .pri-lbl { font-size: 10.5px; color: var(--dim); }
 
   /* -- AVATAR -- */
-  /* Colors chosen for WCAG AA contrast (>= 4.5:1) with white text */
   .avatar {
     width: 21px; height: 21px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -189,7 +249,23 @@
   .err-screen h1 { font-size: 20px; color: var(--orange); }
   .err-screen p  { font-size: 13px; color: var(--dim); max-width: 440px; line-height: 1.6; }
 
-  /* -- MOBILE -- */
+  /* -- AUDIT HIDDEN -- */
+  .audit-hidden .cols { grid-template-columns: 1fr; }
+  .audit-hidden .audit-wrap { display: none; }
+  .audit-hidden .prod-wrap { border-right: none; }
+
+  /* -- AUDIT TOGGLE BUTTON -- */
+  .btn-audit-toggle {
+    background: none; border: 1px solid #3e4349; border-radius: 5px;
+    color: #666; font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 500;
+    padding: 4px 9px; cursor: pointer; letter-spacing: .04em;
+    transition: color .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .btn-audit-toggle:hover { color: var(--dim); border-color: #666; }
+  .btn-audit-toggle.active { color: var(--teal); border-color: var(--teal); }
+
+
   @media (max-width: 768px) {
     html, body { overflow: auto; height: auto; }
     .app { height: auto; overflow: visible; }
@@ -205,16 +281,48 @@
     .col { overflow-y: visible; flex: none; padding: 7px 10px; }
     .card { padding: 7px 10px; margin-bottom: 5px; }
     .card-sum { -webkit-line-clamp: 3; }
+    .lock-box { width: calc(100vw - 48px); padding: 28px 24px; }
   }
 </style>
 </head>
 <body>
 
+<!-- Lock screen - shown when not authenticated or password expired -->
+<div class="lock-screen" id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-logo">Library Market</div>
+    <div class="lock-title">Jira Dashboard</div>
+    <input type="password" class="lock-input" id="lock-input" placeholder="Password" autocomplete="current-password">
+    <button class="lock-btn" id="lock-btn">Unlock</button>
+    <div class="lock-err" id="lock-err"></div>
+  </div>
+</div>
+
 <script>
-const VERSION = 'v2.3.1';
-const WORKER  = 'https://lm-jira-proxy.hey-c75.workers.dev';
-const PROJS   = 'SUP,PRO,LC';
-const REFRESH = 60000;
+const VERSION      = 'v2.5.0';
+const WORKER       = 'https://lm-jira-proxy.hey-c75.workers.dev';
+const PROJS        = 'SUP,PRO,LC';
+const REFRESH      = 60000;
+const AUTH_KEY     = 'lm_dash_auth';
+const ASSIGNEE_KEY = 'lm_dash_assignee';
+const AUDIT_KEY    = 'lm_dash_audit_hidden';
+const AUTH_DAYS    = 30;
+
+// -- Team members for assignee dropdown --
+const TEAM = [
+  { label: 'Steven',   id: '5ac6b5ab7028785d133fc756' },
+  { label: 'Joe B.',   id: '70121:782a68a4-b847-4427-aee9-1291e3afcffc' },
+  { label: 'Joe F.',   id: '712020:74992645-6143-423f-a40a-3aa3f255dde5' },
+  { label: 'Lauren',   id: '712020:ed3cdd82-fdde-4a1a-a622-ebb3d09c1f99' },
+  { label: 'Lindsay',  id: '5f621a3642547c007124c2f0' },
+  { label: 'Valerie',  id: '5b50dba24649a35be6efb318' },
+  { label: 'Dustin',   id: '5bff2d82ed26a5223c94da98' },
+  { label: 'Holly',    id: '62bdae2dfa171a27239e51f4' },
+  { label: 'Hayley',   id: '5b5103de845e7e2cdff772f7' },
+  { label: 'Clay',     id: '5c34aa64e186550b0adf9cfd' },
+  { label: 'Brandon',  id: '62bdae2ced036549273e3d1f' },
+  { label: 'Jeremy',   id: '5c7efe8b29592211228c73a7' },
+];
 
 // -- Sanity check --
 if (!WORKER || WORKER.includes('YOUR-WORKER')) {
@@ -228,99 +336,119 @@ if (!WORKER || WORKER.includes('YOUR-WORKER')) {
   throw new Error('WORKER not configured');
 }
 
+// -- Auth helpers --
+function getStoredPassword() {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (!raw) return null;
+    const { password, expiry } = JSON.parse(raw);
+    if (Date.now() > expiry) { localStorage.removeItem(AUTH_KEY); return null; }
+    return password;
+  } catch { return null; }
+}
+
+function storePassword(pw) {
+  localStorage.setItem(AUTH_KEY, JSON.stringify({
+    password: pw,
+    expiry:   Date.now() + AUTH_DAYS * 24 * 60 * 60 * 1000,
+  }));
+}
+
+function clearPassword() {
+  localStorage.removeItem(AUTH_KEY);
+}
+
+function showLockScreen(errMsg) {
+  const el = document.getElementById('lock-screen');
+  if (el) { el.classList.add('visible'); }
+  const errEl = document.getElementById('lock-err');
+  if (errEl) errEl.textContent = errMsg || '';
+  const input = document.getElementById('lock-input');
+  if (input) { input.value = ''; setTimeout(() => input.focus(), 50); }
+}
+
+function hideLockScreen() {
+  const el = document.getElementById('lock-screen');
+  if (el) el.classList.remove('visible');
+}
+
+let dashPassword   = getStoredPassword();
+
+// -- Pref helpers --
+function getSavedAssignee() {
+  try { const v = localStorage.getItem(ASSIGNEE_KEY); return v !== null ? parseInt(v, 10) : 0; }
+  catch { return 0; }
+}
+function saveAssignee(idx) {
+  try { localStorage.setItem(ASSIGNEE_KEY, String(idx)); } catch {}
+}
+function getSavedAuditHidden() {
+  try { return localStorage.getItem(AUDIT_KEY) === 'true'; } catch { return false; }
+}
+function saveAuditHidden(hidden) {
+  try { localStorage.setItem(AUDIT_KEY, hidden ? 'true' : 'false'); } catch {}
+}
+
 // -- Icon generation --
-// Generates an orange rounded square with a white 3-bar kanban motif.
-// Used as both the favicon and the iOS/iPadOS home screen icon.
 function generateIcon(size) {
   const c   = document.createElement('canvas');
   c.width   = size;
   c.height  = size;
   const ctx = c.getContext('2d');
-
-  // Rounded orange background
   const r = size * 0.18;
   ctx.fillStyle = '#f05223';
   ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.lineTo(size - r, 0);
-  ctx.arcTo(size, 0, size, r, r);
-  ctx.lineTo(size, size - r);
-  ctx.arcTo(size, size, size - r, size, r);
-  ctx.lineTo(r, size);
-  ctx.arcTo(0, size, 0, size - r, r);
-  ctx.lineTo(0, r);
-  ctx.arcTo(0, 0, r, 0, r);
-  ctx.closePath();
-  ctx.fill();
+  ctx.moveTo(r, 0); ctx.lineTo(size - r, 0);
+  ctx.arcTo(size, 0, size, r, r); ctx.lineTo(size, size - r);
+  ctx.arcTo(size, size, size - r, size, r); ctx.lineTo(r, size);
+  ctx.arcTo(0, size, 0, size - r, r); ctx.lineTo(0, r);
+  ctx.arcTo(0, 0, r, 0, r); ctx.closePath(); ctx.fill();
 
-  // Three white kanban bars at varying heights
   ctx.fillStyle = '#ffffff';
-  const bw      = size * 0.13;
-  const gap     = size * 0.075;
-  const totalW  = 3 * bw + 2 * gap;
-  const startX  = (size - totalW) / 2;
-  const baseY   = size * 0.76;
-  const heights = [size * 0.42, size * 0.26, size * 0.52]; // left, mid, right
-  const br      = bw * 0.28;
-
+  const bw = size * 0.13, gap = size * 0.075;
+  const totalW = 3 * bw + 2 * gap;
+  const startX = (size - totalW) / 2;
+  const baseY  = size * 0.76;
+  const heights = [size * 0.42, size * 0.26, size * 0.52];
+  const br = bw * 0.28;
   for (let i = 0; i < 3; i++) {
-    const x = startX + i * (bw + gap);
-    const h = heights[i];
-    const y = baseY - h;
+    const x = startX + i * (bw + gap), h = heights[i], y = baseY - h;
     ctx.beginPath();
-    ctx.moveTo(x + br, y);
-    ctx.lineTo(x + bw - br, y);
-    ctx.arcTo(x + bw, y, x + bw, y + br, br);
-    ctx.lineTo(x + bw, y + h - br);
-    ctx.arcTo(x + bw, y + h, x + bw - br, y + h, br);
-    ctx.lineTo(x + br, y + h);
-    ctx.arcTo(x, y + h, x, y + h - br, br);
-    ctx.lineTo(x, y + br);
-    ctx.arcTo(x, y, x + br, y, br);
-    ctx.closePath();
-    ctx.fill();
+    ctx.moveTo(x + br, y); ctx.lineTo(x + bw - br, y);
+    ctx.arcTo(x + bw, y, x + bw, y + br, br); ctx.lineTo(x + bw, y + h - br);
+    ctx.arcTo(x + bw, y + h, x + bw - br, y + h, br); ctx.lineTo(x + br, y + h);
+    ctx.arcTo(x, y + h, x, y + h - br, br); ctx.lineTo(x, y + br);
+    ctx.arcTo(x, y, x + br, y, br); ctx.closePath(); ctx.fill();
   }
   return c.toDataURL('image/png');
 }
 
 function injectIcons() {
-  const i180 = generateIcon(180);
-  const i32  = generateIcon(32);
-
+  const i180 = generateIcon(180), i32 = generateIcon(32);
   const touch = document.createElement('link');
-  touch.rel   = 'apple-touch-icon';
-  touch.href  = i180;
+  touch.rel = 'apple-touch-icon'; touch.href = i180;
   document.head.appendChild(touch);
-
-  const fav   = document.createElement('link');
-  fav.rel     = 'icon';
-  fav.type    = 'image/png';
-  fav.href    = i32;
+  const fav = document.createElement('link');
+  fav.rel = 'icon'; fav.type = 'image/png'; fav.href = i32;
   document.head.appendChild(fav);
 }
 
 // -- State --
-let prodIssues  = [];
-let auditIssues = [];
-let prodSort    = 'priority';
-let auditSort   = 'priority';
-let sprintMode  = true;
-let countdown   = REFRESH / 1000;
-let autoTimer   = null;
-let countTimer  = null;
+let prodIssues     = [];
+let auditIssues    = [];
+let prodSort       = 'priority';
+let auditSort      = 'priority';
+let sprintMode     = true;
+let selectedMember = TEAM[Math.min(getSavedAssignee(), TEAM.length - 1)];
+let auditHidden    = getSavedAuditHidden();
+let countdown      = REFRESH / 1000;
+let autoTimer      = null;
+let countTimer     = null;
 
-// -- Avatar - WCAG AA verified dark palette (all >= 4.5:1 with white) --
+// -- Avatar --
 const AVATAR_COLORS = [
-  '#b71c1c', // red-900         ~7.5:1
-  '#880e4f', // pink-900        ~9.0:1
-  '#4a148c', // purple-900      ~11.1:1
-  '#1a237e', // indigo-900      ~11.5:1
-  '#0d47a1', // blue-900        ~7.2:1
-  '#006064', // cyan-900        ~6.6:1
-  '#1b5e20', // green-900       ~7.3:1
-  '#bf360c', // deep-orange-900 ~5.5:1
-  '#4e342e', // brown-800       ~8.3:1
-  '#37474f', // blue-grey-800   ~6.7:1
+  '#b71c1c','#880e4f','#4a148c','#1a237e','#0d47a1',
+  '#006064','#1b5e20','#bf360c','#4e342e','#37474f',
 ];
 function avatarColor(name) {
   let h = 0;
@@ -335,7 +463,7 @@ function initials(n) {
 
 // -- Status pill --
 function pill(status) {
-  const cat = (status.statusCategory?.key || '').toLowerCase();
+  const cat  = (status.statusCategory?.key || '').toLowerCase();
   const name = status.name || 'Unknown';
   const low  = name.toLowerCase();
   let cls = 'p-def';
@@ -357,8 +485,6 @@ function priHTML(priority) {
 }
 
 // -- Blocked detection --
-// An issue is considered blocked if it has an "is blocked by" link
-// pointing to an issue that is NOT in the Done status category.
 function isBlocked(fields) {
   return (fields.issuelinks || []).some(link =>
     link.type?.inward === 'is blocked by' &&
@@ -380,22 +506,19 @@ function sorted(issues, mode) {
 }
 
 // -- Card HTML --
-// Layout (2 rows):
-//   [key] [BLOCKED?]        [dot] [Priority] [Status pill] [Avatar]
-//   Summary text
 function cardHTML(issue) {
-  const f      = issue.fields;
-  const asgn   = f.assignee;
-  const av     = asgn
+  const f   = issue.fields;
+  const asgn = f.assignee;
+  const av   = asgn
     ? `<span class="avatar" style="background:${avatarColor(asgn.displayName)}">${initials(asgn.displayName)}</span>`
     : '';
-  const blocked    = isBlocked(f);
-  const blockedCls = blocked ? ' blocked' : '';
+  const blocked      = isBlocked(f);
+  const blockedCls   = blocked ? ' blocked' : '';
   const blockedBadge = blocked ? `<span class="badge-blocked">Blocked</span>` : '';
   return `
     <div class="card${blockedCls}" onclick="openTicket('${issue.key}')">
       <div class="card-top">
-        <div class="card-key-group">${'<span class="card-key">' + issue.key + '</span>'}${blockedBadge}</div>
+        <div class="card-key-group"><span class="card-key">${issue.key}</span>${blockedBadge}</div>
         <div class="card-right">${priHTML(f.priority)}${pill(f.status)}${av}</div>
       </div>
       <div class="card-sum">${f.summary || ''}</div>
@@ -430,12 +553,18 @@ function updateStats() {
 }
 
 // -- Jira API --
+class AuthError extends Error {}
+
 async function jiraPost(path, body) {
   const res = await fetch(WORKER + path, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    headers: {
+      'Content-Type':          'application/json',
+      'X-Dashboard-Password':  dashPassword || '',
+    },
+    body: JSON.stringify(body),
   });
+  if (res.status === 401) throw new AuthError('Incorrect password');
   if (!res.ok) {
     const t = await res.text().catch(() => '');
     throw new Error(`HTTP ${res.status}: ${t.slice(0, 200)}`);
@@ -443,7 +572,6 @@ async function jiraPost(path, body) {
   return res.json();
 }
 
-// issuelinks included so we can detect blocked tickets
 const FIELDS = ['summary', 'status', 'priority', 'assignee', 'updated',
                 'issuetype', 'project', 'issuelinks'];
 
@@ -451,12 +579,12 @@ async function fetchAll() {
   const dot = document.getElementById('sync-dot');
   if (dot) dot.className = 'sync-dot stale';
 
-  // Exclude Done status category and Archived status from both columns
-  const EXCL = `AND statusCategory not in (Done) AND status not in ("Archived")`;
+  const EXCL        = `AND statusCategory not in (Done) AND status not in ("Archived")`;
+  const assigneeJQL = `assignee = "${selectedMember.id}"`;
 
   const prodJQL  = sprintMode
-    ? `project in (${PROJS}) AND sprint in openSprints() AND assignee = currentUser() ${EXCL} AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
-    : `project in (${PROJS}) AND assignee = currentUser() ${EXCL} AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+    ? `project in (${PROJS}) AND sprint in openSprints() AND ${assigneeJQL} ${EXCL} AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
+    : `project in (${PROJS}) AND ${assigneeJQL} ${EXCL} AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
   const auditJQL = sprintMode
     ? `project in (${PROJS}) AND sprint in openSprints() ${EXCL} AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
     : `project in (${PROJS}) ${EXCL} AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
@@ -464,14 +592,21 @@ async function fetchAll() {
   try {
     const [pd, ad] = await Promise.all([
       jiraPost('/rest/api/3/search/jql', { jql: prodJQL,  maxResults: 50,  fields: FIELDS }),
-      jiraPost('/rest/api/3/search/jql', { jql: auditJQL, maxResults: 100, fields: FIELDS })
+      jiraPost('/rest/api/3/search/jql', { jql: auditJQL, maxResults: 100, fields: FIELDS }),
     ]);
     prodIssues  = pd.issues || [];
     auditIssues = ad.issues || [];
   } catch (err) {
+    if (err instanceof AuthError) {
+      clearPassword();
+      dashPassword = null;
+      stopTimers();
+      showLockScreen('Incorrect password - please try again');
+      return;
+    }
     if (sprintMode && (err.message.includes('400') || err.message.includes('500'))) {
       sprintMode = false;
-      set('prod-sub',  'All open - sprint boards not configured');
+      set('prod-sub-text',  'All open - sprint boards not configured');
       set('audit-sub', 'All open - sprint boards not configured');
       return fetchAll();
     }
@@ -502,8 +637,36 @@ function setSort(col, mode) {
   }
 }
 
-function startTimers() {
+function onAssigneeChange() {
+  const sel = document.getElementById('assignee-select');
+  const idx = parseInt(sel.value, 10);
+  selectedMember = TEAM[idx] || TEAM[0];
+  saveAssignee(idx);
+  fetchAll();
+}
+
+function toggleAudit() {
+  auditHidden = !auditHidden;
+  saveAuditHidden(auditHidden);
+  applyAuditVisibility();
+}
+
+function applyAuditVisibility() {
+  const app = document.querySelector('.app');
+  const btn = document.getElementById('btn-audit-toggle');
+  if (app) app.classList.toggle('audit-hidden', auditHidden);
+  if (btn) {
+    btn.textContent = auditHidden ? 'Show Audits' : 'Hide Audits';
+    btn.classList.toggle('active', !auditHidden);
+  }
+}
+
+function stopTimers() {
   clearInterval(autoTimer); clearInterval(countTimer);
+}
+
+function startTimers() {
+  stopTimers();
   autoTimer  = setInterval(fetchAll, REFRESH);
   countTimer = setInterval(() => {
     countdown = Math.max(0, countdown - 1);
@@ -511,10 +674,52 @@ function startTimers() {
   }, 1000);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  injectIcons();
+function startDashboard() {
+  hideLockScreen();
   fetchAll();
   startTimers();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  injectIcons();
+
+  // Populate assignee dropdown and restore saved selection
+  const sel = document.getElementById('assignee-select');
+  if (sel) {
+    const savedIdx = Math.min(getSavedAssignee(), TEAM.length - 1);
+    TEAM.forEach((member, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = member.label;
+      if (idx === savedIdx) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  // Apply stored audit column visibility
+  applyAuditVisibility();
+
+  // Lock screen submit
+  const lockBtn   = document.getElementById('lock-btn');
+  const lockInput = document.getElementById('lock-input');
+
+  function attemptUnlock() {
+    const pw = lockInput ? lockInput.value.trim() : '';
+    if (!pw) return;
+    dashPassword = pw;
+    storePassword(pw);
+    startDashboard();
+  }
+
+  if (lockBtn)   lockBtn.addEventListener('click', attemptUnlock);
+  if (lockInput) lockInput.addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
+
+  // Start or show lock screen
+  if (dashPassword) {
+    startDashboard();
+  } else {
+    showLockScreen();
+  }
 });
 </script>
 
@@ -527,6 +732,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="sync-dot" id="sync-dot"></span>
         <span class="sync-label">Refresh in <span id="countdown">60s</span></span>
       </div>
+      <button class="btn-audit-toggle" id="btn-audit-toggle" onclick="toggleAudit()">Hide Audits</button>
       <button class="btn-refresh" onclick="fetchAll(); startTimers();">Refresh</button>
     </div>
   </header>
@@ -548,8 +754,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="col-wrap prod-wrap">
       <div class="col-hdr">
         <div class="col-hdr-left">
-          <div class="col-title">Steven's Production Tasks <span class="col-count" id="prod-count">--</span></div>
-          <div class="col-sub" id="prod-sub">Current sprint &middot; Assigned to Steven</div>
+          <div class="col-title">Production Tasks <span class="col-count" id="prod-count">--</span></div>
+          <div class="col-sub">
+            Current sprint &middot;
+            <select class="assignee-select" id="assignee-select" onchange="onAssigneeChange()"></select>
+          </div>
         </div>
         <div class="col-sort">
           <button class="sort-btn active" id="prod-pri" title="Sort by priority" onclick="setSort('prod','priority')">&#9776;</button>
@@ -578,7 +787,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <script>
-  // Stamp version into the badge after DOM is ready
   document.getElementById('version-badge').textContent = VERSION;
 </script>
 </body>
