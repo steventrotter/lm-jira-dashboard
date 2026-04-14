@@ -90,6 +90,18 @@
   }
   .btn-refresh:hover { color: var(--dim); border-color: #666; }
 
+  /* -- COL TOGGLE BUTTONS -- */
+  .col-toggles { display: flex; gap: 5px; }
+  .btn-col-toggle {
+    background: none; border: 1px solid #3e4349; border-radius: 5px;
+    color: #666; font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 500;
+    padding: 4px 9px; cursor: pointer; letter-spacing: .04em;
+    transition: color .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .btn-col-toggle:hover { color: var(--dim); border-color: #666; }
+  .btn-col-toggle.active { color: var(--teal); border-color: var(--teal); }
+
   /* -- STATS BAR -- */
   .stats {
     background: var(--bg-mid);
@@ -108,6 +120,30 @@
   }
   .sprint-lbl { font-size: 10.5px; color: var(--dim); font-style: italic; }
 
+  /* -- SEARCH BAR -- */
+  .search-bar {
+    background: var(--bg-dark);
+    padding: 7px 18px;
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #3a3e44;
+  }
+  .search-icon { color: #555; flex-shrink: 0; line-height: 0; }
+  .search-input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 12px;
+    flex: 1; min-width: 0;
+  }
+  .search-input::placeholder { color: #555; }
+  .search-clear {
+    background: none; border: none; color: #555; cursor: pointer;
+    font-size: 14px; line-height: 1; padding: 0 2px;
+    transition: color .15s; flex-shrink: 0;
+    display: none;
+  }
+  .search-clear.visible { display: block; }
+  .search-clear:hover { color: var(--dim); }
+
   /* -- COLUMNS -- */
   .cols {
     display: grid; grid-template-columns: 3fr 2fr; grid-auto-rows: 1fr;
@@ -115,6 +151,14 @@
   }
   .col-wrap { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   .col-wrap.prod-wrap { border-right: 1px solid #3a3e44; }
+
+  /* -- COLUMN VISIBILITY -- */
+  .audit-hidden .audit-wrap { display: none; }
+  .audit-hidden .cols { grid-template-columns: 1fr; }
+  .audit-hidden .prod-wrap { border-right: none; }
+
+  .prod-hidden .prod-wrap { display: none; }
+  .prod-hidden .cols { grid-template-columns: 1fr; }
 
   /* -- COLUMN HEADER -- */
   .col-hdr {
@@ -212,6 +256,12 @@
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
 
+  /* Search highlight */
+  .card-sum mark {
+    background: rgba(0,185,174,.28); color: var(--text);
+    border-radius: 2px; padding: 0 1px;
+  }
+
   /* -- STATUS PILLS -- */
   .pill {
     font-size: 9.5px; font-weight: 600; letter-spacing: .05em;
@@ -249,23 +299,6 @@
   .err-screen h1 { font-size: 20px; color: var(--orange); }
   .err-screen p  { font-size: 13px; color: var(--dim); max-width: 440px; line-height: 1.6; }
 
-  /* -- AUDIT HIDDEN -- */
-  .audit-hidden .cols { grid-template-columns: 1fr; }
-  .audit-hidden .audit-wrap { display: none; }
-  .audit-hidden .prod-wrap { border-right: none; }
-
-  /* -- AUDIT TOGGLE BUTTON -- */
-  .btn-audit-toggle {
-    background: none; border: 1px solid #3e4349; border-radius: 5px;
-    color: #666; font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 500;
-    padding: 4px 9px; cursor: pointer; letter-spacing: .04em;
-    transition: color .15s, border-color .15s;
-    white-space: nowrap;
-  }
-  .btn-audit-toggle:hover { color: var(--dim); border-color: #666; }
-  .btn-audit-toggle.active { color: var(--teal); border-color: var(--teal); }
-
-
   @media (max-width: 768px) {
     html, body { overflow: auto; height: auto; }
     .app { height: auto; overflow: visible; }
@@ -276,6 +309,7 @@
     .stat-div { display: none; }
     .version-badge { margin-left: 0; }
     .sprint-lbl { width: 100%; }
+    .search-bar { padding: 7px 12px; }
     .cols { display: flex; flex-direction: column; flex: none; grid-auto-rows: auto; }
     .col-wrap { flex: none; min-height: 0; overflow: visible; }
     .col { overflow-y: visible; flex: none; padding: 7px 10px; }
@@ -287,7 +321,7 @@
 </head>
 <body>
 
-<!-- Lock screen - shown when not authenticated or password expired -->
+<!-- Lock screen -->
 <div class="lock-screen" id="lock-screen">
   <div class="lock-box">
     <div class="lock-logo">Library Market</div>
@@ -299,16 +333,17 @@
 </div>
 
 <script>
-const VERSION      = 'v2.5.0';
+const VERSION      = 'v2.6.0';
 const WORKER       = 'https://lm-jira-proxy.hey-c75.workers.dev';
 const PROJS        = 'SUP,PRO,LC';
 const REFRESH      = 60000;
 const AUTH_KEY     = 'lm_dash_auth';
 const ASSIGNEE_KEY = 'lm_dash_assignee';
 const AUDIT_KEY    = 'lm_dash_audit_hidden';
+const PROD_KEY     = 'lm_dash_prod_hidden';
 const AUTH_DAYS    = 30;
 
-// -- Team members for assignee dropdown --
+// -- Team members --
 const TEAM = [
   { label: 'Steven',   id: '5ac6b5ab7028785d133fc756' },
   { label: 'Joe B.',   id: '70121:782a68a4-b847-4427-aee9-1291e3afcffc' },
@@ -330,8 +365,7 @@ if (!WORKER || WORKER.includes('YOUR-WORKER')) {
     <div class="err-screen">
       <h1>Worker URL not set</h1>
       <p>Open <code>index.html</code> and replace the placeholder in the
-      <code>WORKER</code> constant at the top of the script with your
-      Cloudflare Worker URL, then re-upload to GitHub.</p>
+      <code>WORKER</code> constant with your Cloudflare Worker URL, then re-upload to GitHub.</p>
     </div>`;
   throw new Error('WORKER not configured');
 }
@@ -346,33 +380,28 @@ function getStoredPassword() {
     return password;
   } catch { return null; }
 }
-
 function storePassword(pw) {
   localStorage.setItem(AUTH_KEY, JSON.stringify({
     password: pw,
     expiry:   Date.now() + AUTH_DAYS * 24 * 60 * 60 * 1000,
   }));
 }
-
-function clearPassword() {
-  localStorage.removeItem(AUTH_KEY);
-}
+function clearPassword() { localStorage.removeItem(AUTH_KEY); }
 
 function showLockScreen(errMsg) {
   const el = document.getElementById('lock-screen');
-  if (el) { el.classList.add('visible'); }
+  if (el) el.classList.add('visible');
   const errEl = document.getElementById('lock-err');
   if (errEl) errEl.textContent = errMsg || '';
   const input = document.getElementById('lock-input');
   if (input) { input.value = ''; setTimeout(() => input.focus(), 50); }
 }
-
 function hideLockScreen() {
   const el = document.getElementById('lock-screen');
   if (el) el.classList.remove('visible');
 }
 
-let dashPassword   = getStoredPassword();
+let dashPassword = getStoredPassword();
 
 // -- Pref helpers --
 function getSavedAssignee() {
@@ -382,20 +411,19 @@ function getSavedAssignee() {
 function saveAssignee(idx) {
   try { localStorage.setItem(ASSIGNEE_KEY, String(idx)); } catch {}
 }
-function getSavedAuditHidden() {
-  try { return localStorage.getItem(AUDIT_KEY) === 'true'; } catch { return false; }
+function getSavedHidden(key) {
+  try { return localStorage.getItem(key) === 'true'; } catch { return false; }
 }
-function saveAuditHidden(hidden) {
-  try { localStorage.setItem(AUDIT_KEY, hidden ? 'true' : 'false'); } catch {}
+function saveHidden(key, hidden) {
+  try { localStorage.setItem(key, hidden ? 'true' : 'false'); } catch {}
 }
 
 // -- Icon generation --
 function generateIcon(size) {
   const c   = document.createElement('canvas');
-  c.width   = size;
-  c.height  = size;
+  c.width   = size; c.height = size;
   const ctx = c.getContext('2d');
-  const r = size * 0.18;
+  const r   = size * 0.18;
   ctx.fillStyle = '#f05223';
   ctx.beginPath();
   ctx.moveTo(r, 0); ctx.lineTo(size - r, 0);
@@ -403,7 +431,6 @@ function generateIcon(size) {
   ctx.arcTo(size, size, size - r, size, r); ctx.lineTo(r, size);
   ctx.arcTo(0, size, 0, size - r, r); ctx.lineTo(0, r);
   ctx.arcTo(0, 0, r, 0, r); ctx.closePath(); ctx.fill();
-
   ctx.fillStyle = '#ffffff';
   const bw = size * 0.13, gap = size * 0.075;
   const totalW = 3 * bw + 2 * gap;
@@ -422,7 +449,6 @@ function generateIcon(size) {
   }
   return c.toDataURL('image/png');
 }
-
 function injectIcons() {
   const i180 = generateIcon(180), i32 = generateIcon(32);
   const touch = document.createElement('link');
@@ -440,7 +466,8 @@ let prodSort       = 'priority';
 let auditSort      = 'priority';
 let sprintMode     = true;
 let selectedMember = TEAM[Math.min(getSavedAssignee(), TEAM.length - 1)];
-let auditHidden    = getSavedAuditHidden();
+let auditHidden    = getSavedHidden(AUDIT_KEY);
+let prodHidden     = getSavedHidden(PROD_KEY);
 let countdown      = REFRESH / 1000;
 let autoTimer      = null;
 let countTimer     = null;
@@ -493,21 +520,44 @@ function isBlocked(fields) {
   );
 }
 
-// -- Sort --
+// -- Search filter --
+function getSearchQuery() {
+  return (document.getElementById('search-input')?.value || '').trim().toLowerCase();
+}
+
+function filterIssues(issues, query) {
+  if (!query) return issues;
+  return issues.filter(i =>
+    i.key.toLowerCase().includes(query) ||
+    (i.fields.summary || '').toLowerCase().includes(query)
+  );
+}
+
+// Wrap matching text in <mark> for highlighting
+function highlight(text, query) {
+  if (!query) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+}
+
+// -- Sort: blocked always sink to bottom --
 function sorted(issues, mode) {
-  return [...issues].sort((a, b) => {
+  const normal  = issues.filter(i => !isBlocked(i.fields));
+  const blocked = issues.filter(i =>  isBlocked(i.fields));
+  const sortFn  = (a, b) => {
     if (mode === 'priority') {
       const pa = PRIO_ORD[a.fields.priority?.name] ?? 99;
       const pb = PRIO_ORD[b.fields.priority?.name] ?? 99;
       if (pa !== pb) return pa - pb;
     }
     return new Date(b.fields.updated) - new Date(a.fields.updated);
-  });
+  };
+  return [...normal.sort(sortFn), ...blocked.sort(sortFn)];
 }
 
 // -- Card HTML --
-function cardHTML(issue) {
-  const f   = issue.fields;
+function cardHTML(issue, query) {
+  const f    = issue.fields;
   const asgn = f.assignee;
   const av   = asgn
     ? `<span class="avatar" style="background:${avatarColor(asgn.displayName)}">${initials(asgn.displayName)}</span>`
@@ -515,13 +565,14 @@ function cardHTML(issue) {
   const blocked      = isBlocked(f);
   const blockedCls   = blocked ? ' blocked' : '';
   const blockedBadge = blocked ? `<span class="badge-blocked">Blocked</span>` : '';
+  const summary      = highlight(f.summary || '', query);
   return `
     <div class="card${blockedCls}" onclick="openTicket('${issue.key}')">
       <div class="card-top">
         <div class="card-key-group"><span class="card-key">${issue.key}</span>${blockedBadge}</div>
         <div class="card-right">${priHTML(f.priority)}${pill(f.status)}${av}</div>
       </div>
-      <div class="card-sum">${f.summary || ''}</div>
+      <div class="card-sum">${summary}</div>
     </div>`;
 }
 
@@ -533,10 +584,12 @@ function openTicket(key) {
 function renderCol(id, issues, sort) {
   const el = document.getElementById(id);
   if (!el) return;
-  const list = sorted(issues, sort);
-  el.innerHTML = list.length
-    ? list.map(cardHTML).join('')
-    : '<div class="state-msg">No tickets found</div>';
+  const query    = getSearchQuery();
+  const filtered = filterIssues(issues, query);
+  const list     = sorted(filtered, sort);
+  el.innerHTML   = list.length
+    ? list.map(i => cardHTML(i, query)).join('')
+    : `<div class="state-msg">${query ? 'No matching tickets' : 'No tickets found'}</div>`;
 }
 
 function set(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
@@ -544,12 +597,29 @@ function set(id, v) { const el = document.getElementById(id); if (el) el.textCon
 function updateStats() {
   const all    = [...prodIssues, ...auditIssues];
   const catKey = i => (i.fields.status.statusCategory?.key || '').toLowerCase();
-  set('stat-open',   all.filter(i => catKey(i) !== 'done').length);
-  set('stat-inprog', all.filter(i => catKey(i) === 'indeterminate').length);
-  set('stat-done',   all.filter(i => catKey(i) === 'done').length);
+  // de-dupe by key for global counts (audit tickets appear in both columns)
+  const unique = [...new Map(all.map(i => [i.key, i])).values()];
+  set('stat-open',   unique.filter(i => catKey(i) !== 'done').length);
+  set('stat-inprog', unique.filter(i => catKey(i) === 'indeterminate').length);
+  set('stat-done',   unique.filter(i => catKey(i) === 'done').length);
   set('stat-audits', auditIssues.length);
   set('prod-count',  prodIssues.length);
   set('audit-count', auditIssues.length);
+}
+
+// -- Search --
+function onSearch() {
+  const query   = getSearchQuery();
+  const clearEl = document.getElementById('search-clear');
+  if (clearEl) clearEl.classList.toggle('visible', query.length > 0);
+  renderCol('prod-col',  prodIssues,  prodSort);
+  renderCol('audit-col', auditIssues, auditSort);
+}
+
+function clearSearch() {
+  const input = document.getElementById('search-input');
+  if (input) { input.value = ''; input.focus(); }
+  onSearch();
 }
 
 // -- Jira API --
@@ -559,8 +629,8 @@ async function jiraPost(path, body) {
   const res = await fetch(WORKER + path, {
     method: 'POST',
     headers: {
-      'Content-Type':          'application/json',
-      'X-Dashboard-Password':  dashPassword || '',
+      'Content-Type':         'application/json',
+      'X-Dashboard-Password': dashPassword || '',
     },
     body: JSON.stringify(body),
   });
@@ -582,9 +652,12 @@ async function fetchAll() {
   const EXCL        = `AND statusCategory not in (Done) AND status not in ("Archived")`;
   const assigneeJQL = `assignee = "${selectedMember.id}"`;
 
-  const prodJQL  = sprintMode
-    ? `project in (${PROJS}) AND sprint in openSprints() AND ${assigneeJQL} ${EXCL} AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
-    : `project in (${PROJS}) AND ${assigneeJQL} ${EXCL} AND NOT (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+  // Production: all tickets assigned to selected person (including audits)
+  const prodJQL = sprintMode
+    ? `project in (${PROJS}) AND sprint in openSprints() AND ${assigneeJQL} ${EXCL} ORDER BY priority ASC, updated DESC`
+    : `project in (${PROJS}) AND ${assigneeJQL} ${EXCL} ORDER BY priority ASC, updated DESC`;
+
+  // Audits: all audit tickets, all assignees
   const auditJQL = sprintMode
     ? `project in (${PROJS}) AND sprint in openSprints() ${EXCL} AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
     : `project in (${PROJS}) ${EXCL} AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
@@ -606,7 +679,7 @@ async function fetchAll() {
     }
     if (sprintMode && (err.message.includes('400') || err.message.includes('500'))) {
       sprintMode = false;
-      set('prod-sub-text',  'All open - sprint boards not configured');
+      set('prod-sub-text', 'All open - sprint boards not configured');
       set('audit-sub', 'All open - sprint boards not configured');
       return fetchAll();
     }
@@ -645,20 +718,29 @@ function onAssigneeChange() {
   fetchAll();
 }
 
-function toggleAudit() {
-  auditHidden = !auditHidden;
-  saveAuditHidden(auditHidden);
-  applyAuditVisibility();
+// -- Column visibility --
+function applyColVisibility() {
+  const app      = document.querySelector('.app');
+  const btnProd  = document.getElementById('btn-prod-toggle');
+  const btnAudit = document.getElementById('btn-audit-toggle');
+  if (app) {
+    app.classList.toggle('prod-hidden',  prodHidden);
+    app.classList.toggle('audit-hidden', auditHidden);
+  }
+  if (btnProd)  btnProd.classList.toggle('active',  !prodHidden);
+  if (btnAudit) btnAudit.classList.toggle('active', !auditHidden);
 }
 
-function applyAuditVisibility() {
-  const app = document.querySelector('.app');
-  const btn = document.getElementById('btn-audit-toggle');
-  if (app) app.classList.toggle('audit-hidden', auditHidden);
-  if (btn) {
-    btn.textContent = auditHidden ? 'Show Audits' : 'Hide Audits';
-    btn.classList.toggle('active', !auditHidden);
-  }
+function toggleProd() {
+  prodHidden = !prodHidden;
+  saveHidden(PROD_KEY, prodHidden);
+  applyColVisibility();
+}
+
+function toggleAudit() {
+  auditHidden = !auditHidden;
+  saveHidden(AUDIT_KEY, auditHidden);
+  applyColVisibility();
 }
 
 function stopTimers() {
@@ -683,7 +765,7 @@ function startDashboard() {
 document.addEventListener('DOMContentLoaded', () => {
   injectIcons();
 
-  // Populate assignee dropdown and restore saved selection
+  // Populate assignee dropdown
   const sel = document.getElementById('assignee-select');
   if (sel) {
     const savedIdx = Math.min(getSavedAssignee(), TEAM.length - 1);
@@ -696,10 +778,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Apply stored audit column visibility
-  applyAuditVisibility();
+  // Apply stored column visibility
+  applyColVisibility();
 
-  // Lock screen submit
+  // Lock screen
   const lockBtn   = document.getElementById('lock-btn');
   const lockInput = document.getElementById('lock-input');
 
@@ -714,7 +796,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (lockBtn)   lockBtn.addEventListener('click', attemptUnlock);
   if (lockInput) lockInput.addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
 
-  // Start or show lock screen
   if (dashPassword) {
     startDashboard();
   } else {
@@ -732,7 +813,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="sync-dot" id="sync-dot"></span>
         <span class="sync-label">Refresh in <span id="countdown">60s</span></span>
       </div>
-      <button class="btn-audit-toggle" id="btn-audit-toggle" onclick="toggleAudit()">Hide Audits</button>
+      <div class="col-toggles">
+        <button class="btn-col-toggle active" id="btn-prod-toggle" onclick="toggleProd()">Prod</button>
+        <button class="btn-col-toggle active" id="btn-audit-toggle" onclick="toggleAudit()">Audits</button>
+      </div>
       <button class="btn-refresh" onclick="fetchAll(); startTimers();">Refresh</button>
     </div>
   </header>
@@ -747,6 +831,20 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="stat"><span class="stat-val" id="stat-audits">--</span>&nbsp;Audits</div>
     <span class="sprint-lbl">Current sprint</span>
     <span class="version-badge" id="version-badge"></span>
+  </div>
+
+  <div class="search-bar">
+    <span class="search-icon">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="9.35" y1="9.35" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <input type="text" id="search-input" class="search-input"
+           placeholder="Search by ticket key or summary..."
+           oninput="onSearch()"
+           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()" title="Clear search">&times;</button>
   </div>
 
   <div class="cols">
