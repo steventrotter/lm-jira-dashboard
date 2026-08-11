@@ -3,1185 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>LM · Jira Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Moved - Library Market Jira Dashboard</title>
+
+<!-- v3.0.0 - RETIREMENT REDIRECT (2026-08-11)
+     ==========================================================
+     This dashboard was replaced by /my-work/ inside LM Discovery
+     (shipped as LM Discovery v2.19.0-.2). The full previous tool is
+     archived at builds/index-v2.8.0-final-preredirect.html.
+
+     GitHub Pages cannot issue a real 301, so this is a meta-refresh
+     plus a scripted redirect. The meta refresh carries a 3 second
+     delay ON PURPOSE: it is the no-JavaScript fallback, and firing it
+     at 0 would race the cleanup script below. Anyone with JavaScript
+     goes immediately.
+
+     The cleanup matters more than the redirect. The old tool kept the
+     SHARED DASHBOARD PASSWORD in localStorage under 'lm_dash_auth',
+     so a copy is sitting in the browser of everyone who ever opened
+     this page. This is the last moment it can be removed, because
+     after the Cloudflare Worker is deleted nobody will load this
+     origin again. Clearing it here means the secret dies with the
+     tool rather than lingering in browser storage indefinitely.
+     ========================================================== -->
+
+<meta http-equiv="refresh" content="3; url=https://discovery.librarymarket.com/my-work/">
+<link rel="canonical" href="https://discovery.librarymarket.com/my-work/">
+<meta name="robots" content="noindex">
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg:       #2d3035;
-    --bg-dark:  #22252a;
-    --bg-mid:   #272b30;
-    --orange:   #f05223;
-    --teal:     #00b9ae;
-    --text:     #f5f5f2;
-    --dim:      #c9c5c0;
-    --card-bg:  #32363c;
-    --card-bdr: #3e4349;
-    --radius:   7px;
+    --ink:   #1a1a1a;
+    --mute:  #5a574e;
+    --quiet: #8a857c;
+    --purple:#463287;
+    --purple-hover:#2F2160;
+    --bg:    #f7f6f3;
+    --card:  #ffffff;
+    --border:rgba(0,0,0,0.08);
   }
-
-  html, body { height: 100%; font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-  .app { display: flex; flex-direction: column; height: 100vh; }
-
-  /* -- LOCK SCREEN -- */
-  .lock-screen {
-    position: fixed; inset: 0; z-index: 999;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     background: var(--bg);
-    display: none; align-items: center; justify-content: center;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
   }
-  .lock-screen.visible { display: flex; }
-  .lock-box {
-    background: var(--bg-dark);
-    border: 1px solid #3e4349;
-    border-radius: 10px;
-    padding: 36px 40px;
-    width: 300px;
-    display: flex; flex-direction: column; gap: 13px;
-    text-align: center;
+  .wrap {
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
   }
-  .lock-logo {
-    font-size: 18px; font-weight: 700; letter-spacing: .14em;
-    text-transform: uppercase; color: #666;
-  }
-  .lock-title {
-    font-size: 22px; font-weight: 700; color: var(--text); margin-top: -4px;
-  }
-  .lock-input {
-    background: var(--bg-mid); border: 1px solid #3e4349; border-radius: 5px;
-    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 20px;
-    padding: 9px 12px; outline: none; width: 100%;
-    transition: border-color .15s;
-  }
-  .lock-input:focus { border-color: var(--teal); }
-  .lock-btn {
-    background: var(--teal); color: #0a1f1e; border: none; border-radius: 5px;
-    padding: 9px; font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 700;
-    cursor: pointer; transition: opacity .15s; letter-spacing: .03em;
-  }
-  .lock-btn:hover { opacity: .85; }
-  .lock-err { font-size: 19px; color: #ff5252; min-height: 15px; }
-
-  /* -- HEADER -- */
-  .hdr {
-    background: var(--bg-dark);
-    padding: 9px 18px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    flex-shrink: 0;
-    border-bottom: 2px solid #666;
-  }
-  .hdr-title {
-    font-size: 20px; font-weight: 700; letter-spacing: .12em;
-    text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .hdr-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 19px; color: var(--dim); }
-  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
-  .sync-dot.stale { background: #777; }
-  .sync-label { white-space: nowrap; }
-  .btn-refresh {
-    background: none; color: #666; border: 1px solid #3e4349; border-radius: 5px;
-    padding: 5px 12px; font-family: 'Poppins', sans-serif; font-size: 18.5px; font-weight: 500;
-    cursor: pointer; letter-spacing: .04em;
-    transition: color .15s, border-color .15s;
-  }
-  .btn-refresh:hover { color: var(--dim); border-color: #666; }
-
-  /* -- COL TOGGLE BUTTONS -- */
-  .col-toggles { display: flex; gap: 5px; }
-  .view-tabs { display: flex; gap: 4px; margin-right: 10px; }
-  .btn-view {
-    font: inherit; font-size: 18px; letter-spacing: .09em; text-transform: uppercase;
-    font-weight: 600; padding: 4px 11px; border-radius: 4px; cursor: pointer;
-    background: none; border: 1px solid #4a4f57; color: #8b95a1;
-  }
-  .btn-view:hover { color: var(--dim); border-color: #666; }
-  .btn-view.active { color: var(--teal); border-color: var(--teal); background: rgba(46,196,182,.10); }
-  /* full-width alternate views */
-  .altview { display: none; flex: 1; min-height: 0; overflow: auto; padding: 18px 20px 26px; }
-  body.view-audits .cols { display: none; }
-  body.view-audits .search-bar { display: none; }
-  body.view-audits #view-audits { display: block; }
-  .av-h { font-size: 18.5px; letter-spacing: .13em; text-transform: uppercase; font-weight: 700; margin: 0 0 2px; }
-  .av-s { font-size: 18px; color: #7d8b9a; margin-bottom: 12px; }
-  .av-grid { display: grid; gap: 14px; }
-  .sprintcols { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 12px; }
-  .spcol { border: 1px solid #3a3e44; border-radius: 7px; overflow: hidden; background: #1b1f24; }
-  .spcol.loose { border-color: #7a5c2a; }
-  .spcol-h { padding: 8px 11px; border-bottom: 1px solid #3a3e44; display: flex; justify-content: space-between; align-items: center; }
-  .spcol-t { font-size: 18px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; }
-  .spcol-n { font-size: 18px; color: #7d8b9a; font-variant-numeric: tabular-nums; }
-  .spcol-b { padding: 9px; max-height: 560px; overflow: auto; }
-  .mini { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 4px; margin-bottom: 4px; background: #22272e; cursor: pointer; }
-  .mini:hover { background: #2a3038; }
-  .mini-k { font-size: 18px; color: #7d8b9a; font-variant-numeric: tabular-nums; flex: none; }
-  .mini-c { font-size: 19px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .tag { font-size: 18px; letter-spacing: .06em; text-transform: uppercase; padding: 2px 5px; border-radius: 3px; font-weight: 700; flex: none; }
-  .t-client { background: rgba(46,196,182,.14); color: var(--teal); }
-  .t-internal { background: rgba(217,164,65,.15); color: #d9a441; }
-  .t-none { background: rgba(160,160,160,.13); color: #9aa4ae; }
-  .mini-a { font-size: 18px; color: #7d8b9a; flex: none; font-variant-numeric: tabular-nums; }
-  .kpis { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #3a3e44; border-radius: 7px; overflow: hidden; margin-bottom: 16px; background: #1b1f24; }
-  .kpi { flex: 1; min-width: 150px; padding: 14px 17px; border-right: 1px solid #3a3e44; }
-  .kpi:last-child { border-right: 0; }
-  .kpi-v { font-size: 30px; font-weight: 600; line-height: 1.1; }
-  .kpi-l { font-size: 18px; letter-spacing: .11em; text-transform: uppercase; color: #7d8b9a; margin-top: 3px; }
-  .card { border: 1px solid #3a3e44; border-radius: 7px; padding: 13px 15px; background: #1b1f24; }
-  .brow { display: flex; align-items: center; gap: 9px; font-size: 19px; padding: 4px 0; }
-  .brow-n { width: 150px; flex: none; color: #7d8b9a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .brow-t { flex: 1; height: 16px; background: #2a3038; border-radius: 2px; overflow: hidden; }
-  .brow-f { height: 100%; }
-  .brow-v { width: 34px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; flex: none; }
-  .kv { display: flex; justify-content: space-between; font-size: 19px; padding: 5px 0; border-bottom: 1px solid #2a3038; }
-  .kv:last-child { border-bottom: 0; }
-  .kv span { color: #7d8b9a; }
-  .donuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-  .donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 6px; }
-  .donut-v { font-size: 28px; font-weight: 700; fill: #e8eef5; }
-  .donut-l { font-size: 11px; fill: #7d8b9a; letter-spacing: .06em; text-transform: uppercase; }
-  .donut-key { display: flex; flex-direction: column; gap: 7px; min-width: 150px; flex: 1; }
-  .dk { display: flex; align-items: center; gap: 9px; font-size: 18px; }
-  .dk-c { width: 13px; height: 13px; border-radius: 3px; flex: none; }
-  .dk-n { flex: 1; color: #96a1ad; }
-  .dk-v { font-weight: 700; font-variant-numeric: tabular-nums; }
-  .kpi-u { font-size: 18px; }
-  .blk { font-size: 18px; font-weight: 700; color: #d9a441; background: rgba(217,164,65,.13);
-         border-radius: 3px; padding: 0 6px; flex: none; cursor: help; line-height: 1.4;
-         letter-spacing: .04em; }
-  .mini.is-blocked { border-left: 3px solid #7a5c2a; }
-  .blocktable { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
-  .blkrow { display: flex; align-items: center; gap: 11px; padding: 8px 10px; background: #22272e;
-            border-radius: 4px; cursor: pointer; font-size: 18px; }
-  .blkrow:hover { background: #2a3038; }
-  .blk-k { font-weight: 700; flex: none; width: 108px; }
-  .blk-s { color: #7d8b9a; flex: none; width: 148px; }
-  .blk-n { color: #d9a441; font-weight: 700; flex: none; width: 30px; text-align: right; }
-  .blk-l { color: #96a1ad; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .age-warn { color: #d9a441; cursor: help; border-bottom: 1px dotted #7a5c2a; }
-  .agenote { font-size: 18px; color: #b9a37c; background: rgba(217,164,65,.06);
-             border: 1px solid #7a5c2a; border-radius: 6px; padding: 10px 13px;
-             margin: 0 0 14px; line-height: 1.55; }
-  .agenote b { color: #d9a441; }
-  .caveat { margin-top: 14px; padding: 10px 13px; border: 1px solid #7a5c2a; border-radius: 6px; background: rgba(217,164,65,.06); font-size: 18px; color: #b9a37c; line-height: 1.6; }
-  .btn-col-toggle {
-    background: none; border: 1px solid #3e4349; border-radius: 5px;
-    color: #666; font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 500;
-    padding: 4px 9px; cursor: pointer; letter-spacing: .04em;
-    transition: color .15s, border-color .15s;
-    white-space: nowrap;
-  }
-  .btn-col-toggle:hover { color: var(--dim); border-color: #666; }
-  .btn-col-toggle.active { color: var(--teal); border-color: var(--teal); }
-
-  /* -- STATS BAR -- */
-  .stats {
-    background: var(--bg-mid);
-    padding: 6px 18px;
-    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-    flex-shrink: 0; font-size: 19px; color: var(--dim);
-  }
-  .stat { display: flex; align-items: center; gap: 5px; }
-  .stat-val { font-weight: 700; font-size: 20px; color: var(--text); }
-  .stat-div { width: 1px; height: 13px; background: #444; }
-  .version-badge {
-    margin-left: auto;
-    font-size: 18px; color: #666;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: .04em;
-  }
-  .sprint-lbl { font-size: 18px; color: var(--dim); font-style: italic; }
-
-  /* -- SEARCH BAR -- */
-  .search-bar {
-    background: var(--bg-dark);
-    padding: 7px 18px;
-    display: flex; align-items: center; gap: 8px;
-    flex-shrink: 0;
-    border-bottom: 1px solid #3a3e44;
-  }
-  .search-icon { color: #555; flex-shrink: 0; line-height: 0; }
-  .search-input {
-    background: none; border: none; outline: none;
-    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 19px;
-    flex: 1; min-width: 0;
-  }
-  .search-input::placeholder { color: #555; }
-  .search-clear {
-    background: none; border: none; color: #555; cursor: pointer;
-    font-size: 21px; line-height: 1; padding: 0 2px;
-    transition: color .15s; flex-shrink: 0;
-    display: none;
-  }
-  .search-clear.visible { display: block; }
-  .search-clear:hover { color: var(--dim); }
-
-  /* -- COLUMNS -- */
-  .cols {
-    display: grid; grid-template-columns: 1fr; grid-auto-rows: 1fr;
-    flex: 1; min-height: 0;
-  }
-  .col-wrap { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-
-
-  /* -- COLUMN VISIBILITY -- */
-  .audit-hidden .audit-wrap { display: none; }
-  .audit-hidden .cols { grid-template-columns: 1fr; }
-  .audit-hidden .prod-wrap { border-right: none; }
-
-  .prod-hidden .prod-wrap { display: none; }
-  .prod-hidden .cols { grid-template-columns: 1fr; }
-
-  /* -- COLUMN HEADER -- */
-  .col-hdr {
-    padding: 9px 14px 7px;
-    background: var(--bg-dark);
-    border-bottom: 2px solid #666;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-shrink: 0;
-  }
-  .col-hdr-left { display: flex; flex-direction: column; gap: 2px; }
-  .col-title {
-    font-size: 19px; font-weight: 700; letter-spacing: .1em;
-    text-transform: uppercase; display: flex; align-items: center; gap: 7px;
-  }
-  .col-count {
-    background: #3e4349; color: var(--dim);
-    font-size: 18px; font-weight: 600; border-radius: 10px; padding: 1px 6px;
-  }
-  .col-sub { font-size: 18px; color: var(--dim); font-style: italic; display: flex; align-items: center; gap: 4px; }
-  .col-sort { display: flex; gap: 4px; }
-  .sort-btn {
-    background: none; border: 1px solid #3e4349; border-radius: 4px;
-    color: var(--dim); width: 25px; height: 25px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: border-color .15s, color .15s; font-size: 19px;
-  }
-  .sort-btn:hover { border-color: var(--teal); color: var(--text); }
-  .sort-btn.active { border-color: var(--teal); color: var(--teal); }
-
-  /* -- ASSIGNEE DROPDOWN -- */
-  .assignee-select {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid #3e4349;
-    color: var(--dim);
-    font-family: 'Poppins', sans-serif;
-    font-size: 18px;
-    font-style: italic;
-    cursor: pointer;
-    outline: none;
-    padding: 0 14px 0 2px;
-    -webkit-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath fill='%23666' d='M0 0l4 5 4-5z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 2px center;
-    transition: border-color .15s, color .15s;
-  }
-  .assignee-select:hover { border-color: #666; color: var(--text); }
-  .assignee-select:focus { border-color: var(--teal); }
-  .assignee-select option { background: var(--bg-dark); color: var(--text); font-style: normal; }
-
-  /* -- SCROLL AREA -- */
-  .col { overflow-y: auto; flex: 1; padding: 9px 11px; min-height: 0; }
-  .col::-webkit-scrollbar { width: 4px; }
-  .col::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
-
-  /* -- CARD -- */
   .card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
-    border-radius: var(--radius);
-    padding: 8px 11px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    transition: border-color .15s, transform .1s;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 520px;
+    width: 100%;
   }
-  .card:last-child { margin-bottom: 0; }
-  .card:hover { border-color: var(--teal); transform: translateY(-1px); }
-  .card.blocked { border-color: #e53935 !important; }
-  .card.blocked:hover { border-color: #ff5252 !important; }
-
-  /* Blocked badge */
-  .badge-blocked {
-    font-size: 18px; font-weight: 700; letter-spacing: .06em;
-    text-transform: uppercase; border-radius: 4px;
-    padding: 2px 6px; white-space: nowrap;
-    background: rgba(229,57,53,.25); color: #ff5252;
-    border: 1px solid rgba(229,57,53,.45);
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--quiet);
+    margin-bottom: 10px;
   }
-
-  /* Row 1: key + blocked badge | priority + status + avatar */
-  .card-top {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 6px; margin-bottom: 4px;
+  h1 { font-size: 24px; font-weight: 600; line-height: 1.25; margin-bottom: 14px; }
+  p  { font-size: 15px; line-height: 1.6; color: var(--mute); margin-bottom: 14px; }
+  .btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 11px 20px;
+    background: var(--purple);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
   }
-  .card-key { font-size: 19px; font-weight: 700; color: var(--text); white-space: nowrap; }
-  .card-key-group { display: flex; align-items: center; gap: 6px; min-width: 0; }
-  .card-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-
-  /* Row 2: summary */
-  .card-sum {
-    font-size: 20px; font-weight: 500; color: var(--text);
-    line-height: 1.35;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  .btn:hover { background: var(--purple-hover); }
+  .btn:focus-visible { outline: 3px solid #00A8AA; outline-offset: 2px; }
+  .foot {
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--quiet);
+    line-height: 1.6;
   }
-
-  /* Search highlight */
-  .card-sum mark {
-    background: rgba(0,185,174,.28); color: var(--text);
-    border-radius: 2px; padding: 0 1px;
-  }
-
-  /* -- STATUS PILLS -- */
-  .pill {
-    font-size: 18px; font-weight: 600; letter-spacing: .05em;
-    text-transform: uppercase; border-radius: 4px; padding: 2px 6px; white-space: nowrap;
-  }
-  .p-todo    { background: rgba(150,150,160,.35); color: #fff; }
-  .p-inprog  { background: rgba(0,185,174,.22);  color: var(--teal); }
-  .p-done    { background: rgba(55,170,90,.22);   color: #5ec97a; }
-  .p-review  { background: rgba(140,90,200,.22);  color: #b07de8; }
-  .p-blocked { background: rgba(220,60,60,.22);   color: #f07070; }
-  .p-def     { background: rgba(120,120,130,.18); color: var(--dim); }
-
-  /* -- PRIORITY DOT -- */
-  .pri-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .pri-highest { background: #e53935; }
-  .pri-high    { background: var(--orange); }
-  .pri-medium  { background: #f5a623; }
-  .pri-low     { background: #78909c; }
-  .pri-lowest  { background: #546e7a; }
-  .pri-lbl { font-size: 18px; color: var(--dim); }
-
-  /* -- AVATAR -- */
-  .avatar {
-    width: 21px; height: 21px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;
-  }
-
-  /* -- STATES -- */
-  .state-msg { padding: 20px 0; text-align: center; font-size: 19px; color: var(--dim); }
-  .err-screen {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; height: 100vh; gap: 10px; text-align: center; padding: 24px;
-  }
-  .err-screen h1 { font-size: 27px; color: var(--orange); }
-  .err-screen p  { font-size: 20px; color: var(--dim); max-width: 440px; line-height: 1.6; }
-
-  @media (max-width: 768px) {
-    html, body { overflow: auto; height: auto; }
-    .app { height: auto; overflow: visible; }
-    .hdr { padding: 8px 12px; }
-    .sync-label { display: none; }
-    .btn-refresh { padding: 4px 9px; font-size: 18px; }
-    .stats { padding: 5px 12px; gap: 10px; }
-    .stat-div { display: none; }
-    .version-badge { margin-left: 0; }
-    .sprint-lbl { width: 100%; }
-    .search-bar { padding: 7px 12px; }
-    .cols { display: flex; flex-direction: column; flex: none; grid-auto-rows: auto; }
-    .col-wrap { flex: none; min-height: 0; overflow: visible; }
-    .col { overflow-y: visible; flex: none; padding: 7px 10px; }
-    .card { padding: 7px 10px; margin-bottom: 5px; }
-    .card-sum { -webkit-line-clamp: 3; }
-    .lock-box { width: calc(100vw - 48px); padding: 28px 24px; }
+  code {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: rgba(0,0,0,0.04);
+    padding: 1px 5px;
+    border-radius: 4px;
   }
 </style>
 </head>
 <body>
 
-<!-- Lock screen -->
-<div class="lock-screen" id="lock-screen">
-  <div class="lock-box">
-    <div class="lock-logo">Library Market</div>
-    <div class="lock-title">Jira Dashboard</div>
-    <input type="password" class="lock-input" id="lock-input" placeholder="Password" autocomplete="current-password">
-    <button class="lock-btn" id="lock-btn">Unlock</button>
-    <div class="lock-err" id="lock-err"></div>
-  </div>
+<div class="wrap">
+  <main class="card">
+    <p class="eyebrow">Library Market</p>
+    <h1>The Jira dashboard has moved</h1>
+    <p>
+      It now lives inside LM Discovery as <strong>My Work</strong>, with your
+      sprint tickets and the accessibility audits in one place. Sign in with
+      your Library Market Google account - no separate password.
+    </p>
+    <p>
+      You should be redirected automatically. If nothing happens, use the
+      button below.
+    </p>
+    <a class="btn" id="go" href="https://discovery.librarymarket.com/my-work/">Go to My Work</a>
+    <p class="foot">
+      You can also reach it any time from the avatar menu in LM Discovery.
+      Bookmark <code>discovery.librarymarket.com/my-work/</code> and remove the
+      old one. This page will stop working once the old service is switched off.
+    </p>
+  </main>
 </div>
 
 <script>
-const VERSION      = 'v2.8.0';
-const WORKER       = 'https://lm-jira-proxy.hey-c75.workers.dev';
-const PROJS        = 'SUP,PRO,LC';
-const REFRESH      = 60000;
-const AUTH_KEY     = 'lm_dash_auth';
-const ASSIGNEE_KEY = 'lm_dash_assignee';
-const AUDIT_KEY    = 'lm_dash_audit_hidden';
-const PROD_KEY     = 'lm_dash_prod_hidden';
-const AUTH_DAYS    = 30;
+(function () {
+  'use strict';
 
-// -- Team members --
-const TEAM = [
-  { label: 'Steven',   id: '5ac6b5ab7028785d133fc756' },
-  { label: 'Joe B.',   id: '70121:782a68a4-b847-4427-aee9-1291e3afcffc' },
-  { label: 'Joe F.',   id: '712020:74992645-6143-423f-a40a-3aa3f255dde5' },
-  { label: 'Lauren',   id: '712020:ed3cdd82-fdde-4a1a-a622-ebb3d09c1f99' },
-  { label: 'Lindsay',  id: '5f621a3642547c007124c2f0' },
-  { label: 'Valerie',  id: '5b50dba24649a35be6efb318' },
-  { label: 'Dustin',   id: '5bff2d82ed26a5223c94da98' },
-  { label: 'Holly',    id: '62bdae2dfa171a27239e51f4' },
-  { label: 'Hayley',   id: '5b5103de845e7e2cdff772f7' },
-  { label: 'Clay',     id: '5c34aa64e186550b0adf9cfd' },
-  { label: 'Brandon',  id: '62bdae2ced036549273e3d1f' },
-  { label: 'Jeremy',   id: '5c7efe8b29592211228c73a7' },
-];
+  var DEST = 'https://discovery.librarymarket.com/my-work/';
 
-// -- Sanity check --
-if (!WORKER || WORKER.includes('YOUR-WORKER')) {
-  document.body.innerHTML = `
-    <div class="err-screen">
-      <h1>Worker URL not set</h1>
-      <p>Open <code>index.html</code> and replace the placeholder in the
-      <code>WORKER</code> constant with your Cloudflare Worker URL, then re-upload to GitHub.</p>
-    </div>`;
-  throw new Error('WORKER not configured');
-}
-
-// -- Auth helpers --
-function getStoredPassword() {
+  // Remove everything the retired tool left in browser storage. The first
+  // key is the important one - it holds the shared dashboard password.
+  // Wrapped because Safari private mode throws on localStorage access, and
+  // a storage error must never block the redirect.
   try {
-    const raw = localStorage.getItem(AUTH_KEY);
-    if (!raw) return null;
-    const { password, expiry } = JSON.parse(raw);
-    if (Date.now() > expiry) { localStorage.removeItem(AUTH_KEY); return null; }
-    return password;
-  } catch { return null; }
-}
-function storePassword(pw) {
-  localStorage.setItem(AUTH_KEY, JSON.stringify({
-    password: pw,
-    expiry:   Date.now() + AUTH_DAYS * 24 * 60 * 60 * 1000,
-  }));
-}
-function clearPassword() { localStorage.removeItem(AUTH_KEY); }
-
-function showLockScreen(errMsg) {
-  const el = document.getElementById('lock-screen');
-  if (el) el.classList.add('visible');
-  const errEl = document.getElementById('lock-err');
-  if (errEl) errEl.textContent = errMsg || '';
-  const input = document.getElementById('lock-input');
-  if (input) { input.value = ''; setTimeout(() => input.focus(), 50); }
-}
-function hideLockScreen() {
-  const el = document.getElementById('lock-screen');
-  if (el) el.classList.remove('visible');
-}
-
-let dashPassword = getStoredPassword();
-
-// -- Pref helpers --
-function getSavedAssignee() {
-  try { const v = localStorage.getItem(ASSIGNEE_KEY); return v !== null ? parseInt(v, 10) : 0; }
-  catch { return 0; }
-}
-function saveAssignee(idx) {
-  try { localStorage.setItem(ASSIGNEE_KEY, String(idx)); } catch {}
-}
-function getSavedHidden(key) {
-  try { return localStorage.getItem(key) === 'true'; } catch { return false; }
-}
-function saveHidden(key, hidden) {
-  try { localStorage.setItem(key, hidden ? 'true' : 'false'); } catch {}
-}
-
-// -- Icon generation --
-function generateIcon(size) {
-  const c   = document.createElement('canvas');
-  c.width   = size; c.height = size;
-  const ctx = c.getContext('2d');
-  const r   = size * 0.18;
-  ctx.fillStyle = '#f05223';
-  ctx.beginPath();
-  ctx.moveTo(r, 0); ctx.lineTo(size - r, 0);
-  ctx.arcTo(size, 0, size, r, r); ctx.lineTo(size, size - r);
-  ctx.arcTo(size, size, size - r, size, r); ctx.lineTo(r, size);
-  ctx.arcTo(0, size, 0, size - r, r); ctx.lineTo(0, r);
-  ctx.arcTo(0, 0, r, 0, r); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  const bw = size * 0.13, gap = size * 0.075;
-  const totalW = 3 * bw + 2 * gap;
-  const startX = (size - totalW) / 2;
-  const baseY  = size * 0.76;
-  const heights = [size * 0.42, size * 0.26, size * 0.52];
-  const br = bw * 0.28;
-  for (let i = 0; i < 3; i++) {
-    const x = startX + i * (bw + gap), h = heights[i], y = baseY - h;
-    ctx.beginPath();
-    ctx.moveTo(x + br, y); ctx.lineTo(x + bw - br, y);
-    ctx.arcTo(x + bw, y, x + bw, y + br, br); ctx.lineTo(x + bw, y + h - br);
-    ctx.arcTo(x + bw, y + h, x + bw - br, y + h, br); ctx.lineTo(x + br, y + h);
-    ctx.arcTo(x, y + h, x, y + h - br, br); ctx.lineTo(x, y + br);
-    ctx.arcTo(x, y, x + br, y, br); ctx.closePath(); ctx.fill();
-  }
-  return c.toDataURL('image/png');
-}
-function injectIcons() {
-  const i180 = generateIcon(180), i32 = generateIcon(32);
-  const touch = document.createElement('link');
-  touch.rel = 'apple-touch-icon'; touch.href = i180;
-  document.head.appendChild(touch);
-  const fav = document.createElement('link');
-  fav.rel = 'icon'; fav.type = 'image/png'; fav.href = i32;
-  document.head.appendChild(fav);
-}
-
-// -- State --
-let prodIssues     = [];
-let auditIssues    = [];
-let allAudits      = [];
-let prodSort       = 'priority';
-let auditSort      = 'priority';
-let sprintMode     = true;
-let selectedMember = TEAM[Math.min(getSavedAssignee(), TEAM.length - 1)];
-let auditHidden    = getSavedHidden(AUDIT_KEY);
-let prodHidden     = getSavedHidden(PROD_KEY);
-let countdown      = REFRESH / 1000;
-let autoTimer      = null;
-let countTimer     = null;
-
-// -- Avatar --
-const AVATAR_COLORS = [
-  '#b71c1c','#880e4f','#4a148c','#1a237e','#0d47a1',
-  '#006064','#1b5e20','#bf360c','#4e342e','#37474f',
-];
-function avatarColor(name) {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
-  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
-}
-function initials(n) {
-  if (!n) return '?';
-  const p = n.trim().split(/\s+/);
-  return p.length >= 2 ? (p[0][0] + p[p.length - 1][0]).toUpperCase() : n.slice(0, 2).toUpperCase();
-}
-
-// -- Status pill --
-function pill(status) {
-  const cat  = (status.statusCategory?.key || '').toLowerCase();
-  const name = status.name || 'Unknown';
-  const low  = name.toLowerCase();
-  let cls = 'p-def';
-  if      (cat === 'new'           || low.includes('to do'))       cls = 'p-todo';
-  else if (cat === 'indeterminate' || low.includes('in progress')) cls = 'p-inprog';
-  else if (cat === 'done')                                         cls = 'p-done';
-  else if (low.includes('review'))                                 cls = 'p-review';
-  else if (low.includes('block'))                                  cls = 'p-blocked';
-  return `<span class="pill ${cls}">${name}</span>`;
-}
-
-// -- Priority --
-const PRIO_ORD = { Highest: 0, High: 1, Medium: 2, Low: 3, Lowest: 4 };
-function priHTML(priority) {
-  const name = priority?.name || 'Medium';
-  const cls  = { Highest: 'pri-highest', High: 'pri-high', Medium: 'pri-medium',
-                 Low: 'pri-low', Lowest: 'pri-lowest' }[name] || 'pri-medium';
-  return `<span class="pri-dot ${cls}"></span><span class="pri-lbl">${name}</span>`;
-}
-
-// -- Blocked detection --
-function isBlocked(fields) {
-  return (fields.issuelinks || []).some(link =>
-    link.type?.inward === 'is blocked by' &&
-    link.inwardIssue &&
-    (link.inwardIssue.fields?.status?.statusCategory?.key || '') !== 'done'
-  );
-}
-
-// -- Search filter --
-function getSearchQuery() {
-  return (document.getElementById('search-input')?.value || '').trim().toLowerCase();
-}
-
-function filterIssues(issues, query) {
-  if (!query) return issues;
-  return issues.filter(i =>
-    i.key.toLowerCase().includes(query) ||
-    (i.fields.summary || '').toLowerCase().includes(query)
-  );
-}
-
-// Wrap matching text in <mark> for highlighting
-function highlight(text, query) {
-  if (!query) return text;
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
-}
-
-// -- Sort: blocked always sink to bottom --
-function sorted(issues, mode) {
-  const normal  = issues.filter(i => !isBlocked(i.fields));
-  const blocked = issues.filter(i =>  isBlocked(i.fields));
-  const sortFn  = (a, b) => {
-    if (mode === 'priority') {
-      const pa = PRIO_ORD[a.fields.priority?.name] ?? 99;
-      const pb = PRIO_ORD[b.fields.priority?.name] ?? 99;
-      if (pa !== pb) return pa - pb;
-    }
-    return new Date(b.fields.updated) - new Date(a.fields.updated);
-  };
-  return [...normal.sort(sortFn), ...blocked.sort(sortFn)];
-}
-
-// -- Card HTML --
-function cardHTML(issue, query) {
-  const f    = issue.fields;
-  const asgn = f.assignee;
-  const av   = asgn
-    ? `<span class="avatar" style="background:${avatarColor(asgn.displayName)}">${initials(asgn.displayName)}</span>`
-    : '';
-  const blocked      = isBlocked(f);
-  const blockedCls   = blocked ? ' blocked' : '';
-  const blockedBadge = blocked ? `<span class="badge-blocked">Blocked</span>` : '';
-  const summary      = highlight(f.summary || '', query);
-  return `
-    <div class="card${blockedCls}" onclick="openTicket('${issue.key}')">
-      <div class="card-top">
-        <div class="card-key-group"><span class="card-key">${issue.key}</span>${blockedBadge}</div>
-        <div class="card-right">${priHTML(f.priority)}${pill(f.status)}${av}</div>
-      </div>
-      <div class="card-sum">${summary}</div>
-    </div>`;
-}
-
-function openTicket(key) {
-  window.open(`https://librarymarket.atlassian.net/browse/${key}`, '_blank');
-}
-
-// -- Render --
-function renderCol(id, issues, sort) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const query    = getSearchQuery();
-  const filtered = filterIssues(issues, query);
-  const list     = sorted(filtered, sort);
-  el.innerHTML   = list.length
-    ? list.map(i => cardHTML(i, query)).join('')
-    : `<div class="state-msg">${query ? 'No matching tickets' : 'No tickets found'}</div>`;
-}
-
-function set(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
-
-function updateStats() {
-  const all    = [...prodIssues, ...auditIssues];
-  const catKey = i => (i.fields.status.statusCategory?.key || '').toLowerCase();
-  // de-dupe by key for global counts (audit tickets appear in both columns)
-  const unique = [...new Map(all.map(i => [i.key, i])).values()];
-  set('stat-open',   unique.filter(i => catKey(i) !== 'done').length);
-  set('stat-inprog', unique.filter(i => catKey(i) === 'indeterminate').length);
-  set('stat-done',   unique.filter(i => catKey(i) === 'done').length);
-  set('stat-audits', auditIssues.length);
-  set('prod-count',  prodIssues.length);
-  set('audit-count', auditIssues.length);
-}
-
-// -- Search --
-function onSearch() {
-  const query   = getSearchQuery();
-  const clearEl = document.getElementById('search-clear');
-  if (clearEl) clearEl.classList.toggle('visible', query.length > 0);
-  renderCol('prod-col',  prodIssues,  prodSort);
-}
-
-function clearSearch() {
-  const input = document.getElementById('search-input');
-  if (input) { input.value = ''; input.focus(); }
-  onSearch();
-}
-
-// -- Jira API --
-class AuthError extends Error {}
-
-async function jiraPost(path, body) {
-  const res = await fetch(WORKER + path, {
-    method: 'POST',
-    headers: {
-      'Content-Type':         'application/json',
-      'X-Dashboard-Password': dashPassword || '',
-    },
-    body: JSON.stringify(body),
-  });
-  if (res.status === 401) throw new AuthError('Incorrect password');
-  if (!res.ok) {
-    const t = await res.text().catch(() => '');
-    throw new Error(`HTTP ${res.status}: ${t.slice(0, 200)}`);
-  }
-  return res.json();
-}
-
-const AUDIT_TYPE_F = 'customfield_10331';   // Jira single-select: Client | Internal
-const SPRINT_F     = 'customfield_10018';   // Jira sprint array
-const FIELDS = ['summary', 'status', 'priority', 'assignee', 'updated', 'created',
-                'issuetype', 'project', 'issuelinks', AUDIT_TYPE_F, SPRINT_F];
-
-async function fetchAll() {
-  const dot = document.getElementById('sync-dot');
-  if (dot) dot.className = 'sync-dot stale';
-
-  const EXCL        = `AND statusCategory not in (Done) AND status not in ("Archived")`;
-  const assigneeJQL = `assignee = "${selectedMember.id}"`;
-
-  // Production: all tickets assigned to selected person (including audits)
-  const prodJQL = sprintMode
-    ? `project in (${PROJS}) AND sprint in openSprints() AND ${assigneeJQL} ${EXCL} ORDER BY priority ASC, updated DESC`
-    : `project in (${PROJS}) AND ${assigneeJQL} ${EXCL} ORDER BY priority ASC, updated DESC`;
-
-  // Audits: all audit tickets, all assignees
-  const auditJQL = sprintMode
-    ? `project in (${PROJS}) AND sprint in openSprints() ${EXCL} AND issuetype = "Audit" ORDER BY priority ASC, updated DESC`
-    : `project in (${PROJS}) ${EXCL} AND issuetype = "Audit" ORDER BY priority ASC, updated DESC`;
-
-  try {
-    const [pd, ad, aa] = await Promise.all([
-      jiraPost('/rest/api/3/search/jql', { jql: prodJQL,  maxResults: 50,  fields: FIELDS }),
-      jiraPost('/rest/api/3/search/jql', { jql: auditJQL, maxResults: 100, fields: FIELDS }),
-      jiraPost('/rest/api/3/search/jql', {
-        jql: `project in (${PROJS}) AND issuetype = "Audit" ORDER BY created ASC`,
-        maxResults: 100, fields: FIELDS }),
-    ]);
-    prodIssues  = pd.issues || [];
-    auditIssues = ad.issues || [];
-    allAudits   = aa.issues || [];
-  } catch (err) {
-    if (err instanceof AuthError) {
-      clearPassword();
-      dashPassword = null;
-      stopTimers();
-      showLockScreen('Incorrect password - please try again');
-      return;
-    }
-    if (sprintMode && (err.message.includes('400') || err.message.includes('500'))) {
-      sprintMode = false;
-      set('prod-sub-text', 'All open - sprint boards not configured');
-      set('audit-sub', 'All open - sprint boards not configured');
-      return fetchAll();
-    }
-    document.getElementById('prod-col').innerHTML  = '<div class="state-msg">Error loading tickets</div>';
-    if (dot) dot.className = 'sync-dot stale';
-    return;
-  }
-
-  renderCol('prod-col',  prodIssues,  prodSort);
-  renderAudits();
-  updateStats();
-  if (dot) dot.className = 'sync-dot';
-  countdown = REFRESH / 1000;
-}
-
-function setSort(col, mode) {
-  if (col === 'prod') {
-    prodSort = mode;
-    document.getElementById('prod-pri').classList.toggle('active', mode === 'priority');
-    document.getElementById('prod-age').classList.toggle('active', mode === 'age');
-    renderCol('prod-col', prodIssues, prodSort);
-  } else {
-    auditSort = mode;
-    document.getElementById('audit-pri').classList.toggle('active', mode === 'priority');
-    document.getElementById('audit-age').classList.toggle('active', mode === 'age');
-    }
-}
-
-function onAssigneeChange() {
-  const sel = document.getElementById('assignee-select');
-  const idx = parseInt(sel.value, 10);
-  selectedMember = TEAM[idx] || TEAM[0];
-  saveAssignee(idx);
-  fetchAll();
-}
-
-// -- Column visibility --
-function applyColVisibility() {
-  // v2.8.0: the Sprint view is a single column now - audits have their own view.
-  // Any prod-hidden/audit-hidden state saved by an older build is cleared here so
-  // nobody opens the dashboard to a blank pane.
-  const app = document.querySelector('.app');
-  if (app) app.classList.remove('prod-hidden', 'audit-hidden');
-}
-
-function toggleProd() {
-  prodHidden = !prodHidden;
-  saveHidden(PROD_KEY, prodHidden);
-  applyColVisibility();
-}
-
-function toggleAudit() {
-  auditHidden = !auditHidden;
-  saveHidden(AUDIT_KEY, auditHidden);
-  applyColVisibility();
-}
-
-function stopTimers() {
-  clearInterval(autoTimer); clearInterval(countTimer);
-}
-
-function startTimers() {
-  stopTimers();
-  autoTimer  = setInterval(fetchAll, REFRESH);
-  countTimer = setInterval(() => {
-    countdown = Math.max(0, countdown - 1);
-    set('countdown', countdown + 's');
-  }, 1000);
-}
-
-function startDashboard() {
-  hideLockScreen();
-  fetchAll();
-  startTimers();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  injectIcons();
-
-  // Populate assignee dropdown
-  const sel = document.getElementById('assignee-select');
-  if (sel) {
-    const savedIdx = Math.min(getSavedAssignee(), TEAM.length - 1);
-    TEAM.forEach((member, idx) => {
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.textContent = member.label;
-      if (idx === savedIdx) opt.selected = true;
-      sel.appendChild(opt);
+    ['lm_dash_auth', 'lm_dash_assignee', 'lm_dash_audit_hidden',
+     'lm_dash_prod_hidden', 'lm_dash_view'].forEach(function (k) {
+      localStorage.removeItem(k);
     });
-  }
+  } catch (e) { /* storage unavailable - nothing to clear */ }
 
-  // Apply stored column visibility
-  applyColVisibility();
-
-  // Lock screen
-  const lockBtn   = document.getElementById('lock-btn');
-  const lockInput = document.getElementById('lock-input');
-
-  function attemptUnlock() {
-    const pw = lockInput ? lockInput.value.trim() : '';
-    if (!pw) return;
-    dashPassword = pw;
-    storePassword(pw);
-    startDashboard();
-  }
-
-  if (lockBtn)   lockBtn.addEventListener('click', attemptUnlock);
-  if (lockInput) lockInput.addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
-
-  if (dashPassword) {
-    startDashboard();
-  } else {
-    showLockScreen();
-  }
-});
+  // replace(), not assign(): the retired URL should not sit in history,
+  // or Back from My Work bounces the user straight back here.
+  window.location.replace(DEST);
+})();
 </script>
 
-<div class="app">
-
-  <header class="hdr">
-    <span class="hdr-title">Library Market &nbsp;/&nbsp; Jira</span>
-    <div class="hdr-right">
-      <div class="sync-info">
-        <span class="sync-dot" id="sync-dot"></span>
-        <span class="sync-label">Refresh in <span id="countdown">60s</span></span>
-      </div>
-      <div class="view-tabs">
-        <button class="btn-view active" id="vt-sprint" onclick="setView('sprint')">Sprint</button>
-        <button class="btn-view"        id="vt-audits" onclick="setView('audits')">Audits</button>
-      </div>
-      <button class="btn-refresh" onclick="fetchAll(); startTimers();">Refresh</button>
-    </div>
-  </header>
-
-  <div class="stats">
-    <div class="stat"><span class="stat-val" id="stat-open">--</span>&nbsp;Open</div>
-    <div class="stat-div"></div>
-    <div class="stat"><span class="stat-val" id="stat-inprog">--</span>&nbsp;In Progress</div>
-    <div class="stat-div"></div>
-    <div class="stat"><span class="stat-val" id="stat-done">--</span>&nbsp;Done</div>
-    <div class="stat-div"></div>
-    <div class="stat"><span class="stat-val" id="stat-audits">--</span>&nbsp;Audits</div>
-    <span class="sprint-lbl">Current sprint</span>
-    <span class="version-badge" id="version-badge"></span>
-  </div>
-
-  <div class="search-bar">
-    <span class="search-icon">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
-        <line x1="9.35" y1="9.35" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </span>
-    <input type="text" id="search-input" class="search-input"
-           placeholder="Search by ticket key or summary..."
-           oninput="onSearch()"
-           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-    <button class="search-clear" id="search-clear" onclick="clearSearch()" title="Clear search">&times;</button>
-  </div>
-
-  <div class="cols">
-
-    <div class="col-wrap prod-wrap">
-      <div class="col-hdr">
-        <div class="col-hdr-left">
-          <div class="col-title">Production Tasks <span class="col-count" id="prod-count">--</span></div>
-          <div class="col-sub">
-            Current sprint &middot;
-            <select class="assignee-select" id="assignee-select" onchange="onAssigneeChange()"></select>
-          </div>
-        </div>
-        <div class="col-sort">
-          <button class="sort-btn active" id="prod-pri" title="Sort by priority" onclick="setSort('prod','priority')">&#9776;</button>
-          <button class="sort-btn" id="prod-age" title="Sort by recent" onclick="setSort('prod','age')">&#9201;</button>
-        </div>
-      </div>
-      <div class="col" id="prod-col"><div class="state-msg">Loading&hellip;</div></div>
-    </div>
-
-
-  </div>
-
-  <div class="altview" id="view-audits"><div class="state-msg">Loading&hellip;</div></div>
-
-</div>
-
-<script>
-/* =========================================================================
-   AUDIT QUEUE + OVERVIEW  (added v2.7.0)
-   Both read the Jira data already fetched above. The Audit type field is
-   authoritative for Client vs Internal; a blank renders as "Not set"
-   rather than being guessed at.
-   ========================================================================= */
-const DONEISH = ['Done', 'Archived', 'Needs Delivery', 'Awaiting Customer Response'];
-const isOpenAudit = f => !DONEISH.includes(f.status.name);
-
-function auditType(f) { const v = f[AUDIT_TYPE_F]; return (v && v.value) ? v.value : null; }
-function typeTag(t) {
-  if (t === 'Client')   return '<span class="tag t-client">Client</span>';
-  if (t === 'Internal') return '<span class="tag t-internal">Internal</span>';
-  return '<span class="tag t-none">Not set</span>';
-}
-function activeSprint(f) {
-  const s = f[SPRINT_F];
-  if (!Array.isArray(s)) return null;
-  const open = s.filter(x => x && x.state !== 'closed');
-  return open.length ? open[open.length - 1].name : null;
-}
-function ageDays(f) { return Math.max(0, Math.round((Date.now() - new Date(f.created)) / 86400000)); }
-
-/* The Jira change of April 2026 forced audits to be recreated by hand, which
-   reset `created` on every one of them. For anything raised in that window the
-   date measures the re-entry, not the request, so the age shown is a floor
-   rather than a figure. Eleven were retyped between 17:45 and 17:59 on the 13th.
-   DELETE THIS BLOCK once those tickets are closed out - it is a temporary
-   correction, not a permanent feature. Steven Trotter, 11 Aug 2026. */
-const REENTRY_FROM = Date.parse('2026-04-09T00:00:00Z');
-const REENTRY_TO   = Date.parse('2026-04-25T00:00:00Z');
-function createdIsSuspect(f) {
-  const t = Date.parse(f.created);
-  return t >= REENTRY_FROM && t < REENTRY_TO;
-}
-function ageLabel(f) {
-  return createdIsSuspect(f)
-    ? '<span class="age-warn" title="Created during the April 2026 Jira re-entry, so this date records the retype rather than the request. The true age is older.">' + ageDays(f) + 'd+</span>'
-    : ageDays(f) + 'd';
-}
-function blockers(f) {
-  return (f.issuelinks || [])
-    .filter(l => l.type && l.type.inward === 'is blocked by' && l.inwardIssue &&
-                 (l.inwardIssue.fields?.status?.statusCategory?.key || '') !== 'done')
-    .map(l => ({ key: l.inwardIssue.key, status: l.inwardIssue.fields?.status?.name || '?' }));
-}
-function libName(sum) { return String(sum || '').replace(/\s*-\s*Accessibilit\w*\s+Audit\.?\s*$/i, '').trim() || sum; }
-function miniHTML(i) {
-  const f = i.fields;
-  const who = (f.assignee && f.assignee.displayName) || 'Unassigned';
-  const bl = blockers(f);
-  const blMark = bl.length
-    ? '<span class="blk" title="Has dependent fixes: ' + bl.map(b => b.key + ' [' + b.status + ']').join(', ') + '. The audit still proceeds; these tasks cannot close until the fix lands.">DEP</span>'
-    : '';
-  return '<div class="mini' + (bl.length ? ' is-blocked' : '') + '" onclick="openTicket(\'' + i.key + '\')" title="' + f.status.name + ' - ' + who + '">' +
-    '<span class="mini-k">' + i.key.replace('SUP-', '') + '</span>' + blMark +
-    '<span class="mini-c">' + libName(f.summary) + '</span>' +
-    typeTag(auditType(f)) +
-    '<span class="mini-a">' + ageLabel(f) + '</span></div>';
-}
-function barRows(rows, max, colors) {
-  return rows.map(function (r, n) {
-    return '<div class="brow"><div class="brow-n" title="' + r[0] + '">' + r[0] + '</div>' +
-      '<div class="brow-t"><div class="brow-f" style="width:' + (max ? (r[1] / max * 100) : 0) + '%;background:' + colors[n % colors.length] + '"></div></div>' +
-      '<div class="brow-v">' + r[1] + '</div></div>';
-  }).join('');
-}
-
-/* ---- donut ---------------------------------------------------------------
-   Pure SVG, no library. Segments are stroke-dasharray arcs on a shared circle.
-   A single-value donut still reads correctly; an all-zero one renders the
-   track only rather than dividing by zero.                                  */
-function donut(segs, centerVal, centerLbl, size) {
-  size = size || 150;
-  const R = 54, C = 2 * Math.PI * R;
-  const total = segs.reduce((a, s) => a + s.v, 0);
-  let off = 0;
-  const arcs = total === 0 ? '' : segs.filter(s => s.v > 0).map(function (s) {
-    const len = s.v / total * C;
-    const a = '<circle cx="70" cy="70" r="' + R + '" fill="none" stroke="' + s.c + '" stroke-width="25"' +
-      ' stroke-dasharray="' + len.toFixed(2) + ' ' + (C - len).toFixed(2) + '"' +
-      ' stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 70 70)"><title>' +
-      s.n + ': ' + s.v + '</title></circle>';
-    off += len;
-    return a;
-  }).join('');
-  return '<div class="donut-wrap"><svg viewBox="0 0 140 140" width="' + size + '" height="' + size + '" role="img" aria-label="' +
-    segs.map(s => s.n + ' ' + s.v).join(', ') + '">' +
-    '<circle cx="70" cy="70" r="' + R + '" fill="none" stroke="#2a3038" stroke-width="25"/>' + arcs +
-    '<text x="70" y="72" text-anchor="middle" class="donut-v">' + centerVal + '</text>' +
-    '<text x="70" y="88" text-anchor="middle" class="donut-l">' + centerLbl + '</text></svg>' +
-    '<div class="donut-key">' + segs.map(s =>
-      '<div class="dk"><span class="dk-c" style="background:' + s.c + '"></span>' +
-      '<span class="dk-n">' + s.n + '</span><span class="dk-v">' + s.v + '</span></div>').join('') +
-    '</div></div>';
-}
-
-function renderAudits() {
-  const el = document.getElementById('view-audits');
-  if (!el) return;
-
-  // Must read allAudits, not auditIssues: the sprint column query is filtered by
-  // `sprint in openSprints()`, which silently drops future sprints and anything
-  // with no sprint at all - exactly the tickets this view exists to surface.
-  const all = allAudits.length ? allAudits : auditIssues;
-  if (!all.length) { el.innerHTML = '<div class="state-msg">No audit data</div>'; return; }
-
-  const open   = all.filter(i => isOpenAudit(i.fields));
-  const closed = all.filter(i => !isOpenAudit(i.fields));
-
-  /* --- request source --- */
-  let cl = 0, intl = 0, unset = 0;
-  open.forEach(function (i) {
-    const t = auditType(i.fields);
-    if (t === 'Client') cl++; else if (t === 'Internal') intl++; else unset++;
-  });
-  const known = cl + intl;
-  const pctCl = known ? Math.round(cl / known * 100) : 0;
-  const unsetAll = all.filter(i => !auditType(i.fields)).length;
-
-  /* --- aging --- */
-  const ages = open.map(i => ageDays(i.fields)).sort((a, b) => a - b);
-  const med  = ages.length ? ages[Math.floor(ages.length / 2)] : 0;
-  const over = ages.filter(a => a > 100).length;
-  const ageSegs = [
-    { n: 'Under 30 days',   v: ages.filter(a => a < 30).length,               c: '#4caf7d' },
-    { n: '30 to 99 days',   v: ages.filter(a => a >= 30 && a < 100).length,   c: '#d9a441' },
-    { n: '100 to 199 days', v: ages.filter(a => a >= 100 && a < 200).length,  c: '#e07a5c' },
-    { n: '200 days plus',   v: ages.filter(a => a >= 200).length,             c: '#e05c5c' }
-  ];
-
-  /* --- program progress --- */
-  const progSegs = [
-    { n: 'Still open',  v: open.length,   c: '#4f9bd9' },
-    { n: 'Delivered',   v: closed.length, c: '#4caf7d' }
-  ];
-
-  /* --- sprint columns --- */
-  const groups = {};
-  open.forEach(function (i) {
-    const k = activeSprint(i.fields) || ' No sprint';
-    (groups[k] = groups[k] || []).push(i);
-  });
-  const cols = Object.keys(groups).sort().map(function (n) {
-    const loose = n.charAt(0) === ' ';
-    const list  = groups[n].slice().sort((a, b) => ageDays(b.fields) - ageDays(a.fields));
-    return '<div class="spcol' + (loose ? ' loose' : '') + '">' +
-      '<div class="spcol-h"><div class="spcol-t">' + (loose ? 'Not in a sprint' : n) + '</div>' +
-      '<div class="spcol-n">' + list.length + '</div></div>' +
-      '<div class="spcol-b">' + list.map(miniHTML).join('') + '</div></div>';
-  }).join('');
-
-  /* --- workload (bars: a donut would imply these are parts of one thing) --- */
-  const by = {};
-  open.forEach(function (i) {
-    const a = (i.fields.assignee && i.fields.assignee.displayName) || 'Unassigned';
-    by[a] = (by[a] || 0) + 1;
-  });
-  const rows = Object.entries(by).sort((a, b) => b[1] - a[1]);
-  const max  = rows.length ? rows[0][1] : 0;
-
-  el.innerHTML =
-    '<h3 class="av-h">Accessibility audits</h3>' +
-
-    '<div class="kpis">' +
-      '<div class="kpi"><div class="kpi-v">' + open.length + '</div><div class="kpi-l">Open now</div></div>' +
-      '<div class="kpi"><div class="kpi-v" style="color:var(--teal)">' + pctCl + '%</div><div class="kpi-l">Client driven</div></div>' +
-      '<div class="kpi"><div class="kpi-v" style="color:' + (over ? '#e05c5c' : 'inherit') + '">' + over + '</div><div class="kpi-l">Over 100 days</div></div>' +
-      '<div class="kpi"><div class="kpi-v">' + med + '<span class="kpi-u">d</span></div><div class="kpi-l">Median age</div></div>' +
-      '<div class="kpi"><div class="kpi-v">' + closed.length + '</div><div class="kpi-l">Delivered</div></div>' +
-      '<div class="kpi"><div class="kpi-v" style="color:#d9a441">' +
-        open.filter(i => blockers(i.fields).length).length + '</div><div class="kpi-l">With dependencies</div></div>' +
-    '</div>' +
-
-    '<div class="donuts">' +
-      '<div class="card"><h3 class="av-h">Why audits happen</h3><div class="av-s">Open audits by request source</div>' +
-        donut([{ n: 'Client asked', v: cl, c: '#2ec4b6' }, { n: 'Internal', v: intl, c: '#d9a441' }]
-              .concat(unset ? [{ n: 'Not set', v: unset, c: '#6b7480' }] : []),
-              pctCl + '%', 'client', 150) + '</div>' +
-      '<div class="card"><h3 class="av-h">Aging</h3><div class="av-s">How long open audits have waited</div>' +
-        donut(ageSegs, med + 'd', 'median', 150) + '</div>' +
-      '<div class="card"><h3 class="av-h">Program</h3><div class="av-s">Since March 2026, when audit tracking began</div>' +
-        donut(progSegs, (all.length ? Math.round(closed.length / all.length * 100) : 0) + '%', 'delivered', 150) + '</div>' +
-      '<div class="card"><h3 class="av-h">Workload</h3><div class="av-s">Open audits per assignee</div>' +
-        barRows(rows, max, ['#2ec4b6', '#4f9bd9', '#7a6fd0', '#d9a441', '#e07a5c', '#9aa4ae']) +
-      '</div>' +
-    '</div>' +
-
-    '<h3 class="av-h" style="margin-top:22px">Queue by sprint</h3>' +
-    '<div class="av-s">Oldest first within each sprint</div>' +
-    '<div class="sprintcols">' + cols + '</div>' +
-    '<div class="card" style="margin-top:22px"><h3 class="av-h">Open dependencies</h3>' +
-      '<div class="av-s">Audits proceed regardless. These are fixes that must land before every task on the audit can close - the ones at the top unblock the most work.</div>' +
-      (function () {
-        const tally = {};
-        open.forEach(function (i) {
-          blockers(i.fields).forEach(function (b) {
-            (tally[b.key] = tally[b.key] || { status: b.status, libs: [] }).libs.push(libName(i.fields.summary));
-          });
-        });
-        const list = Object.entries(tally).sort((a, b) => b[1].libs.length - a[1].libs.length);
-        if (!list.length) return '<div class="av-s">No outstanding dependencies.</div>';
-        return '<div class="blocktable">' + list.map(function (e) {
-          return '<div class="blkrow" onclick="openTicket(\'' + e[0] + '\')">' +
-            '<span class="blk-k">' + e[0] + '</span>' +
-            '<span class="blk-s">' + e[1].status + '</span>' +
-            '<span class="blk-n">' + e[1].libs.length + '</span>' +
-            '<span class="blk-l">' + e[1].libs.join(', ') + '</span></div>';
-        }).join('') + '</div>';
-      })() +
-    '</div>' +
-
-    (unsetAll
-      ? '<div class="caveat"><b>' + unsetAll + ' audit' + (unsetAll === 1 ? ' has' : 's have') + ' no request source recorded.</b> ' +
-        'The Audit type field was added on 11 Aug 2026, so any audit not yet backfilled is left out of the client-driven figure rather than assumed either way.</div>'
-      : '');
-}
-
-let currentView = 'sprint';
-function setView(v) {
-  currentView = v;
-  document.body.classList.toggle('view-audits', v === 'audits');
-  ['sprint', 'audits'].forEach(function (n) {
-    const b = document.getElementById('vt-' + n);
-    if (b) b.classList.toggle('active', n === v);
-  });
-  try { localStorage.setItem('lm_dash_view', v); } catch (e) {}
-}
-try {
-  const savedView = localStorage.getItem('lm_dash_view');
-  if (savedView && savedView !== 'sprint') setView(savedView);
-} catch (e) {}
-
-document.getElementById('version-badge').textContent = VERSION;
-</script>
 </body>
 </html>
