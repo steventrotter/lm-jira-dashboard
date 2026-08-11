@@ -44,26 +44,26 @@
     text-align: center;
   }
   .lock-logo {
-    font-size: 10.5px; font-weight: 700; letter-spacing: .14em;
+    font-size: 18px; font-weight: 700; letter-spacing: .14em;
     text-transform: uppercase; color: #666;
   }
   .lock-title {
-    font-size: 15px; font-weight: 700; color: var(--text); margin-top: -4px;
+    font-size: 22px; font-weight: 700; color: var(--text); margin-top: -4px;
   }
   .lock-input {
     background: var(--bg-mid); border: 1px solid #3e4349; border-radius: 5px;
-    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 13px;
+    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 20px;
     padding: 9px 12px; outline: none; width: 100%;
     transition: border-color .15s;
   }
   .lock-input:focus { border-color: var(--teal); }
   .lock-btn {
     background: var(--teal); color: #0a1f1e; border: none; border-radius: 5px;
-    padding: 9px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700;
+    padding: 9px; font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 700;
     cursor: pointer; transition: opacity .15s; letter-spacing: .03em;
   }
   .lock-btn:hover { opacity: .85; }
-  .lock-err { font-size: 11.5px; color: #ff5252; min-height: 15px; }
+  .lock-err { font-size: 19px; color: #ff5252; min-height: 15px; }
 
   /* -- HEADER -- */
   .hdr {
@@ -74,17 +74,17 @@
     border-bottom: 2px solid #666;
   }
   .hdr-title {
-    font-size: 13px; font-weight: 700; letter-spacing: .12em;
+    font-size: 20px; font-weight: 700; letter-spacing: .12em;
     text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .hdr-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--dim); }
+  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 19px; color: var(--dim); }
   .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
   .sync-dot.stale { background: #777; }
   .sync-label { white-space: nowrap; }
   .btn-refresh {
     background: none; color: #666; border: 1px solid #3e4349; border-radius: 5px;
-    padding: 5px 12px; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 500;
+    padding: 5px 12px; font-family: 'Poppins', sans-serif; font-size: 18.5px; font-weight: 500;
     cursor: pointer; letter-spacing: .04em;
     transition: color .15s, border-color .15s;
   }
@@ -92,9 +92,83 @@
 
   /* -- COL TOGGLE BUTTONS -- */
   .col-toggles { display: flex; gap: 5px; }
+  .view-tabs { display: flex; gap: 4px; margin-right: 10px; }
+  .btn-view {
+    font: inherit; font-size: 18px; letter-spacing: .09em; text-transform: uppercase;
+    font-weight: 600; padding: 4px 11px; border-radius: 4px; cursor: pointer;
+    background: none; border: 1px solid #4a4f57; color: #8b95a1;
+  }
+  .btn-view:hover { color: var(--dim); border-color: #666; }
+  .btn-view.active { color: var(--teal); border-color: var(--teal); background: rgba(46,196,182,.10); }
+  /* full-width alternate views */
+  .altview { display: none; flex: 1; min-height: 0; overflow: auto; padding: 18px 20px 26px; }
+  body.view-audits .cols { display: none; }
+  body.view-audits .search-bar { display: none; }
+  body.view-audits #view-audits { display: block; }
+  .av-h { font-size: 18.5px; letter-spacing: .13em; text-transform: uppercase; font-weight: 700; margin: 0 0 2px; }
+  .av-s { font-size: 18px; color: #7d8b9a; margin-bottom: 12px; }
+  .av-grid { display: grid; gap: 14px; }
+  .sprintcols { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 12px; }
+  .spcol { border: 1px solid #3a3e44; border-radius: 7px; overflow: hidden; background: #1b1f24; }
+  .spcol.loose { border-color: #7a5c2a; }
+  .spcol-h { padding: 8px 11px; border-bottom: 1px solid #3a3e44; display: flex; justify-content: space-between; align-items: center; }
+  .spcol-t { font-size: 18px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; }
+  .spcol-n { font-size: 18px; color: #7d8b9a; font-variant-numeric: tabular-nums; }
+  .spcol-b { padding: 9px; max-height: 560px; overflow: auto; }
+  .mini { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 4px; margin-bottom: 4px; background: #22272e; cursor: pointer; }
+  .mini:hover { background: #2a3038; }
+  .mini-k { font-size: 18px; color: #7d8b9a; font-variant-numeric: tabular-nums; flex: none; }
+  .mini-c { font-size: 19px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tag { font-size: 18px; letter-spacing: .06em; text-transform: uppercase; padding: 2px 5px; border-radius: 3px; font-weight: 700; flex: none; }
+  .t-client { background: rgba(46,196,182,.14); color: var(--teal); }
+  .t-internal { background: rgba(217,164,65,.15); color: #d9a441; }
+  .t-none { background: rgba(160,160,160,.13); color: #9aa4ae; }
+  .mini-a { font-size: 18px; color: #7d8b9a; flex: none; font-variant-numeric: tabular-nums; }
+  .kpis { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #3a3e44; border-radius: 7px; overflow: hidden; margin-bottom: 16px; background: #1b1f24; }
+  .kpi { flex: 1; min-width: 150px; padding: 14px 17px; border-right: 1px solid #3a3e44; }
+  .kpi:last-child { border-right: 0; }
+  .kpi-v { font-size: 30px; font-weight: 600; line-height: 1.1; }
+  .kpi-l { font-size: 18px; letter-spacing: .11em; text-transform: uppercase; color: #7d8b9a; margin-top: 3px; }
+  .card { border: 1px solid #3a3e44; border-radius: 7px; padding: 13px 15px; background: #1b1f24; }
+  .brow { display: flex; align-items: center; gap: 9px; font-size: 19px; padding: 4px 0; }
+  .brow-n { width: 150px; flex: none; color: #7d8b9a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brow-t { flex: 1; height: 16px; background: #2a3038; border-radius: 2px; overflow: hidden; }
+  .brow-f { height: 100%; }
+  .brow-v { width: 34px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; flex: none; }
+  .kv { display: flex; justify-content: space-between; font-size: 19px; padding: 5px 0; border-bottom: 1px solid #2a3038; }
+  .kv:last-child { border-bottom: 0; }
+  .kv span { color: #7d8b9a; }
+  .donuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 6px; }
+  .donut-v { font-size: 28px; font-weight: 700; fill: #e8eef5; }
+  .donut-l { font-size: 11px; fill: #7d8b9a; letter-spacing: .06em; text-transform: uppercase; }
+  .donut-key { display: flex; flex-direction: column; gap: 7px; min-width: 150px; flex: 1; }
+  .dk { display: flex; align-items: center; gap: 9px; font-size: 18px; }
+  .dk-c { width: 13px; height: 13px; border-radius: 3px; flex: none; }
+  .dk-n { flex: 1; color: #96a1ad; }
+  .dk-v { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kpi-u { font-size: 18px; }
+  .blk { font-size: 18px; font-weight: 700; color: #d9a441; background: rgba(217,164,65,.13);
+         border-radius: 3px; padding: 0 6px; flex: none; cursor: help; line-height: 1.4;
+         letter-spacing: .04em; }
+  .mini.is-blocked { border-left: 3px solid #7a5c2a; }
+  .blocktable { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
+  .blkrow { display: flex; align-items: center; gap: 11px; padding: 8px 10px; background: #22272e;
+            border-radius: 4px; cursor: pointer; font-size: 18px; }
+  .blkrow:hover { background: #2a3038; }
+  .blk-k { font-weight: 700; flex: none; width: 108px; }
+  .blk-s { color: #7d8b9a; flex: none; width: 148px; }
+  .blk-n { color: #d9a441; font-weight: 700; flex: none; width: 30px; text-align: right; }
+  .blk-l { color: #96a1ad; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .age-warn { color: #d9a441; cursor: help; border-bottom: 1px dotted #7a5c2a; }
+  .agenote { font-size: 18px; color: #b9a37c; background: rgba(217,164,65,.06);
+             border: 1px solid #7a5c2a; border-radius: 6px; padding: 10px 13px;
+             margin: 0 0 14px; line-height: 1.55; }
+  .agenote b { color: #d9a441; }
+  .caveat { margin-top: 14px; padding: 10px 13px; border: 1px solid #7a5c2a; border-radius: 6px; background: rgba(217,164,65,.06); font-size: 18px; color: #b9a37c; line-height: 1.6; }
   .btn-col-toggle {
     background: none; border: 1px solid #3e4349; border-radius: 5px;
-    color: #666; font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 500;
+    color: #666; font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 500;
     padding: 4px 9px; cursor: pointer; letter-spacing: .04em;
     transition: color .15s, border-color .15s;
     white-space: nowrap;
@@ -107,18 +181,18 @@
     background: var(--bg-mid);
     padding: 6px 18px;
     display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-    flex-shrink: 0; font-size: 11.5px; color: var(--dim);
+    flex-shrink: 0; font-size: 19px; color: var(--dim);
   }
   .stat { display: flex; align-items: center; gap: 5px; }
-  .stat-val { font-weight: 700; font-size: 13.5px; color: var(--text); }
+  .stat-val { font-weight: 700; font-size: 20px; color: var(--text); }
   .stat-div { width: 1px; height: 13px; background: #444; }
   .version-badge {
     margin-left: auto;
-    font-size: 10px; color: #666;
+    font-size: 18px; color: #666;
     font-variant-numeric: tabular-nums;
     letter-spacing: .04em;
   }
-  .sprint-lbl { font-size: 10.5px; color: var(--dim); font-style: italic; }
+  .sprint-lbl { font-size: 18px; color: var(--dim); font-style: italic; }
 
   /* -- SEARCH BAR -- */
   .search-bar {
@@ -131,13 +205,13 @@
   .search-icon { color: #555; flex-shrink: 0; line-height: 0; }
   .search-input {
     background: none; border: none; outline: none;
-    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 12px;
+    color: var(--text); font-family: 'Poppins', sans-serif; font-size: 19px;
     flex: 1; min-width: 0;
   }
   .search-input::placeholder { color: #555; }
   .search-clear {
     background: none; border: none; color: #555; cursor: pointer;
-    font-size: 14px; line-height: 1; padding: 0 2px;
+    font-size: 21px; line-height: 1; padding: 0 2px;
     transition: color .15s; flex-shrink: 0;
     display: none;
   }
@@ -146,11 +220,11 @@
 
   /* -- COLUMNS -- */
   .cols {
-    display: grid; grid-template-columns: 3fr 2fr; grid-auto-rows: 1fr;
+    display: grid; grid-template-columns: 1fr; grid-auto-rows: 1fr;
     flex: 1; min-height: 0;
   }
   .col-wrap { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-  .col-wrap.prod-wrap { border-right: 1px solid #3a3e44; }
+
 
   /* -- COLUMN VISIBILITY -- */
   .audit-hidden .audit-wrap { display: none; }
@@ -170,20 +244,20 @@
   }
   .col-hdr-left { display: flex; flex-direction: column; gap: 2px; }
   .col-title {
-    font-size: 11.5px; font-weight: 700; letter-spacing: .1em;
+    font-size: 19px; font-weight: 700; letter-spacing: .1em;
     text-transform: uppercase; display: flex; align-items: center; gap: 7px;
   }
   .col-count {
     background: #3e4349; color: var(--dim);
-    font-size: 10px; font-weight: 600; border-radius: 10px; padding: 1px 6px;
+    font-size: 18px; font-weight: 600; border-radius: 10px; padding: 1px 6px;
   }
-  .col-sub { font-size: 10px; color: var(--dim); font-style: italic; display: flex; align-items: center; gap: 4px; }
+  .col-sub { font-size: 18px; color: var(--dim); font-style: italic; display: flex; align-items: center; gap: 4px; }
   .col-sort { display: flex; gap: 4px; }
   .sort-btn {
     background: none; border: 1px solid #3e4349; border-radius: 4px;
     color: var(--dim); width: 25px; height: 25px;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: border-color .15s, color .15s; font-size: 12px;
+    cursor: pointer; transition: border-color .15s, color .15s; font-size: 19px;
   }
   .sort-btn:hover { border-color: var(--teal); color: var(--text); }
   .sort-btn.active { border-color: var(--teal); color: var(--teal); }
@@ -195,7 +269,7 @@
     border-bottom: 1px solid #3e4349;
     color: var(--dim);
     font-family: 'Poppins', sans-serif;
-    font-size: 10px;
+    font-size: 18px;
     font-style: italic;
     cursor: pointer;
     outline: none;
@@ -233,7 +307,7 @@
 
   /* Blocked badge */
   .badge-blocked {
-    font-size: 9px; font-weight: 700; letter-spacing: .06em;
+    font-size: 18px; font-weight: 700; letter-spacing: .06em;
     text-transform: uppercase; border-radius: 4px;
     padding: 2px 6px; white-space: nowrap;
     background: rgba(229,57,53,.25); color: #ff5252;
@@ -245,13 +319,13 @@
     display: flex; align-items: center; justify-content: space-between;
     gap: 6px; margin-bottom: 4px;
   }
-  .card-key { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .card-key { font-size: 19px; font-weight: 700; color: var(--text); white-space: nowrap; }
   .card-key-group { display: flex; align-items: center; gap: 6px; min-width: 0; }
   .card-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 
   /* Row 2: summary */
   .card-sum {
-    font-size: 13px; font-weight: 500; color: var(--text);
+    font-size: 20px; font-weight: 500; color: var(--text);
     line-height: 1.35;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
@@ -264,7 +338,7 @@
 
   /* -- STATUS PILLS -- */
   .pill {
-    font-size: 9.5px; font-weight: 600; letter-spacing: .05em;
+    font-size: 18px; font-weight: 600; letter-spacing: .05em;
     text-transform: uppercase; border-radius: 4px; padding: 2px 6px; white-space: nowrap;
   }
   .p-todo    { background: rgba(150,150,160,.35); color: #fff; }
@@ -281,30 +355,30 @@
   .pri-medium  { background: #f5a623; }
   .pri-low     { background: #78909c; }
   .pri-lowest  { background: #546e7a; }
-  .pri-lbl { font-size: 10.5px; color: var(--dim); }
+  .pri-lbl { font-size: 18px; color: var(--dim); }
 
   /* -- AVATAR -- */
   .avatar {
     width: 21px; height: 21px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 8.5px; font-weight: 700; color: #fff; flex-shrink: 0;
+    font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;
   }
 
   /* -- STATES -- */
-  .state-msg { padding: 20px 0; text-align: center; font-size: 12px; color: var(--dim); }
+  .state-msg { padding: 20px 0; text-align: center; font-size: 19px; color: var(--dim); }
   .err-screen {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; height: 100vh; gap: 10px; text-align: center; padding: 24px;
   }
-  .err-screen h1 { font-size: 20px; color: var(--orange); }
-  .err-screen p  { font-size: 13px; color: var(--dim); max-width: 440px; line-height: 1.6; }
+  .err-screen h1 { font-size: 27px; color: var(--orange); }
+  .err-screen p  { font-size: 20px; color: var(--dim); max-width: 440px; line-height: 1.6; }
 
   @media (max-width: 768px) {
     html, body { overflow: auto; height: auto; }
     .app { height: auto; overflow: visible; }
     .hdr { padding: 8px 12px; }
     .sync-label { display: none; }
-    .btn-refresh { padding: 4px 9px; font-size: 10.5px; }
+    .btn-refresh { padding: 4px 9px; font-size: 18px; }
     .stats { padding: 5px 12px; gap: 10px; }
     .stat-div { display: none; }
     .version-badge { margin-left: 0; }
@@ -333,7 +407,7 @@
 </div>
 
 <script>
-const VERSION      = 'v2.6.0';
+const VERSION      = 'v2.8.0';
 const WORKER       = 'https://lm-jira-proxy.hey-c75.workers.dev';
 const PROJS        = 'SUP,PRO,LC';
 const REFRESH      = 60000;
@@ -462,6 +536,7 @@ function injectIcons() {
 // -- State --
 let prodIssues     = [];
 let auditIssues    = [];
+let allAudits      = [];
 let prodSort       = 'priority';
 let auditSort      = 'priority';
 let sprintMode     = true;
@@ -613,7 +688,6 @@ function onSearch() {
   const clearEl = document.getElementById('search-clear');
   if (clearEl) clearEl.classList.toggle('visible', query.length > 0);
   renderCol('prod-col',  prodIssues,  prodSort);
-  renderCol('audit-col', auditIssues, auditSort);
 }
 
 function clearSearch() {
@@ -642,8 +716,10 @@ async function jiraPost(path, body) {
   return res.json();
 }
 
-const FIELDS = ['summary', 'status', 'priority', 'assignee', 'updated',
-                'issuetype', 'project', 'issuelinks'];
+const AUDIT_TYPE_F = 'customfield_10331';   // Jira single-select: Client | Internal
+const SPRINT_F     = 'customfield_10018';   // Jira sprint array
+const FIELDS = ['summary', 'status', 'priority', 'assignee', 'updated', 'created',
+                'issuetype', 'project', 'issuelinks', AUDIT_TYPE_F, SPRINT_F];
 
 async function fetchAll() {
   const dot = document.getElementById('sync-dot');
@@ -659,16 +735,20 @@ async function fetchAll() {
 
   // Audits: all audit tickets, all assignees
   const auditJQL = sprintMode
-    ? `project in (${PROJS}) AND sprint in openSprints() ${EXCL} AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`
-    : `project in (${PROJS}) ${EXCL} AND (issuetype = "Accessibility Audit" OR summary ~ "Accessibility Audit") ORDER BY priority ASC, updated DESC`;
+    ? `project in (${PROJS}) AND sprint in openSprints() ${EXCL} AND issuetype = "Audit" ORDER BY priority ASC, updated DESC`
+    : `project in (${PROJS}) ${EXCL} AND issuetype = "Audit" ORDER BY priority ASC, updated DESC`;
 
   try {
-    const [pd, ad] = await Promise.all([
+    const [pd, ad, aa] = await Promise.all([
       jiraPost('/rest/api/3/search/jql', { jql: prodJQL,  maxResults: 50,  fields: FIELDS }),
       jiraPost('/rest/api/3/search/jql', { jql: auditJQL, maxResults: 100, fields: FIELDS }),
+      jiraPost('/rest/api/3/search/jql', {
+        jql: `project in (${PROJS}) AND issuetype = "Audit" ORDER BY created ASC`,
+        maxResults: 100, fields: FIELDS }),
     ]);
     prodIssues  = pd.issues || [];
     auditIssues = ad.issues || [];
+    allAudits   = aa.issues || [];
   } catch (err) {
     if (err instanceof AuthError) {
       clearPassword();
@@ -684,13 +764,12 @@ async function fetchAll() {
       return fetchAll();
     }
     document.getElementById('prod-col').innerHTML  = '<div class="state-msg">Error loading tickets</div>';
-    document.getElementById('audit-col').innerHTML = '<div class="state-msg">Error loading tickets</div>';
     if (dot) dot.className = 'sync-dot stale';
     return;
   }
 
   renderCol('prod-col',  prodIssues,  prodSort);
-  renderCol('audit-col', auditIssues, auditSort);
+  renderAudits();
   updateStats();
   if (dot) dot.className = 'sync-dot';
   countdown = REFRESH / 1000;
@@ -706,8 +785,7 @@ function setSort(col, mode) {
     auditSort = mode;
     document.getElementById('audit-pri').classList.toggle('active', mode === 'priority');
     document.getElementById('audit-age').classList.toggle('active', mode === 'age');
-    renderCol('audit-col', auditIssues, auditSort);
-  }
+    }
 }
 
 function onAssigneeChange() {
@@ -720,15 +798,11 @@ function onAssigneeChange() {
 
 // -- Column visibility --
 function applyColVisibility() {
-  const app      = document.querySelector('.app');
-  const btnProd  = document.getElementById('btn-prod-toggle');
-  const btnAudit = document.getElementById('btn-audit-toggle');
-  if (app) {
-    app.classList.toggle('prod-hidden',  prodHidden);
-    app.classList.toggle('audit-hidden', auditHidden);
-  }
-  if (btnProd)  btnProd.classList.toggle('active',  !prodHidden);
-  if (btnAudit) btnAudit.classList.toggle('active', !auditHidden);
+  // v2.8.0: the Sprint view is a single column now - audits have their own view.
+  // Any prod-hidden/audit-hidden state saved by an older build is cleared here so
+  // nobody opens the dashboard to a blank pane.
+  const app = document.querySelector('.app');
+  if (app) app.classList.remove('prod-hidden', 'audit-hidden');
 }
 
 function toggleProd() {
@@ -813,9 +887,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="sync-dot" id="sync-dot"></span>
         <span class="sync-label">Refresh in <span id="countdown">60s</span></span>
       </div>
-      <div class="col-toggles">
-        <button class="btn-col-toggle active" id="btn-prod-toggle" onclick="toggleProd()">Prod</button>
-        <button class="btn-col-toggle active" id="btn-audit-toggle" onclick="toggleAudit()">Audits</button>
+      <div class="view-tabs">
+        <button class="btn-view active" id="vt-sprint" onclick="setView('sprint')">Sprint</button>
+        <button class="btn-view"        id="vt-audits" onclick="setView('audits')">Audits</button>
       </div>
       <button class="btn-refresh" onclick="fetchAll(); startTimers();">Refresh</button>
     </div>
@@ -866,26 +940,248 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="col" id="prod-col"><div class="state-msg">Loading&hellip;</div></div>
     </div>
 
-    <div class="col-wrap audit-wrap">
-      <div class="col-hdr">
-        <div class="col-hdr-left">
-          <div class="col-title">Accessibility Audits <span class="col-count" id="audit-count">--</span></div>
-          <div class="col-sub" id="audit-sub">Current sprint &middot; All assignees</div>
-        </div>
-        <div class="col-sort">
-          <button class="sort-btn active" id="audit-pri" title="Sort by priority" onclick="setSort('audit','priority')">&#9776;</button>
-          <button class="sort-btn" id="audit-age" title="Sort by recent" onclick="setSort('audit','age')">&#9201;</button>
-        </div>
-      </div>
-      <div class="col" id="audit-col"><div class="state-msg">Loading&hellip;</div></div>
-    </div>
 
   </div>
+
+  <div class="altview" id="view-audits"><div class="state-msg">Loading&hellip;</div></div>
 
 </div>
 
 <script>
-  document.getElementById('version-badge').textContent = VERSION;
+/* =========================================================================
+   AUDIT QUEUE + OVERVIEW  (added v2.7.0)
+   Both read the Jira data already fetched above. The Audit type field is
+   authoritative for Client vs Internal; a blank renders as "Not set"
+   rather than being guessed at.
+   ========================================================================= */
+const DONEISH = ['Done', 'Archived', 'Needs Delivery', 'Awaiting Customer Response'];
+const isOpenAudit = f => !DONEISH.includes(f.status.name);
+
+function auditType(f) { const v = f[AUDIT_TYPE_F]; return (v && v.value) ? v.value : null; }
+function typeTag(t) {
+  if (t === 'Client')   return '<span class="tag t-client">Client</span>';
+  if (t === 'Internal') return '<span class="tag t-internal">Internal</span>';
+  return '<span class="tag t-none">Not set</span>';
+}
+function activeSprint(f) {
+  const s = f[SPRINT_F];
+  if (!Array.isArray(s)) return null;
+  const open = s.filter(x => x && x.state !== 'closed');
+  return open.length ? open[open.length - 1].name : null;
+}
+function ageDays(f) { return Math.max(0, Math.round((Date.now() - new Date(f.created)) / 86400000)); }
+
+/* The Jira change of April 2026 forced audits to be recreated by hand, which
+   reset `created` on every one of them. For anything raised in that window the
+   date measures the re-entry, not the request, so the age shown is a floor
+   rather than a figure. Eleven were retyped between 17:45 and 17:59 on the 13th.
+   DELETE THIS BLOCK once those tickets are closed out - it is a temporary
+   correction, not a permanent feature. Steven Trotter, 11 Aug 2026. */
+const REENTRY_FROM = Date.parse('2026-04-09T00:00:00Z');
+const REENTRY_TO   = Date.parse('2026-04-25T00:00:00Z');
+function createdIsSuspect(f) {
+  const t = Date.parse(f.created);
+  return t >= REENTRY_FROM && t < REENTRY_TO;
+}
+function ageLabel(f) {
+  return createdIsSuspect(f)
+    ? '<span class="age-warn" title="Created during the April 2026 Jira re-entry, so this date records the retype rather than the request. The true age is older.">' + ageDays(f) + 'd+</span>'
+    : ageDays(f) + 'd';
+}
+function blockers(f) {
+  return (f.issuelinks || [])
+    .filter(l => l.type && l.type.inward === 'is blocked by' && l.inwardIssue &&
+                 (l.inwardIssue.fields?.status?.statusCategory?.key || '') !== 'done')
+    .map(l => ({ key: l.inwardIssue.key, status: l.inwardIssue.fields?.status?.name || '?' }));
+}
+function libName(sum) { return String(sum || '').replace(/\s*-\s*Accessibilit\w*\s+Audit\.?\s*$/i, '').trim() || sum; }
+function miniHTML(i) {
+  const f = i.fields;
+  const who = (f.assignee && f.assignee.displayName) || 'Unassigned';
+  const bl = blockers(f);
+  const blMark = bl.length
+    ? '<span class="blk" title="Has dependent fixes: ' + bl.map(b => b.key + ' [' + b.status + ']').join(', ') + '. The audit still proceeds; these tasks cannot close until the fix lands.">DEP</span>'
+    : '';
+  return '<div class="mini' + (bl.length ? ' is-blocked' : '') + '" onclick="openTicket(\'' + i.key + '\')" title="' + f.status.name + ' - ' + who + '">' +
+    '<span class="mini-k">' + i.key.replace('SUP-', '') + '</span>' + blMark +
+    '<span class="mini-c">' + libName(f.summary) + '</span>' +
+    typeTag(auditType(f)) +
+    '<span class="mini-a">' + ageLabel(f) + '</span></div>';
+}
+function barRows(rows, max, colors) {
+  return rows.map(function (r, n) {
+    return '<div class="brow"><div class="brow-n" title="' + r[0] + '">' + r[0] + '</div>' +
+      '<div class="brow-t"><div class="brow-f" style="width:' + (max ? (r[1] / max * 100) : 0) + '%;background:' + colors[n % colors.length] + '"></div></div>' +
+      '<div class="brow-v">' + r[1] + '</div></div>';
+  }).join('');
+}
+
+/* ---- donut ---------------------------------------------------------------
+   Pure SVG, no library. Segments are stroke-dasharray arcs on a shared circle.
+   A single-value donut still reads correctly; an all-zero one renders the
+   track only rather than dividing by zero.                                  */
+function donut(segs, centerVal, centerLbl, size) {
+  size = size || 150;
+  const R = 54, C = 2 * Math.PI * R;
+  const total = segs.reduce((a, s) => a + s.v, 0);
+  let off = 0;
+  const arcs = total === 0 ? '' : segs.filter(s => s.v > 0).map(function (s) {
+    const len = s.v / total * C;
+    const a = '<circle cx="70" cy="70" r="' + R + '" fill="none" stroke="' + s.c + '" stroke-width="25"' +
+      ' stroke-dasharray="' + len.toFixed(2) + ' ' + (C - len).toFixed(2) + '"' +
+      ' stroke-dashoffset="' + (-off).toFixed(2) + '" transform="rotate(-90 70 70)"><title>' +
+      s.n + ': ' + s.v + '</title></circle>';
+    off += len;
+    return a;
+  }).join('');
+  return '<div class="donut-wrap"><svg viewBox="0 0 140 140" width="' + size + '" height="' + size + '" role="img" aria-label="' +
+    segs.map(s => s.n + ' ' + s.v).join(', ') + '">' +
+    '<circle cx="70" cy="70" r="' + R + '" fill="none" stroke="#2a3038" stroke-width="25"/>' + arcs +
+    '<text x="70" y="72" text-anchor="middle" class="donut-v">' + centerVal + '</text>' +
+    '<text x="70" y="88" text-anchor="middle" class="donut-l">' + centerLbl + '</text></svg>' +
+    '<div class="donut-key">' + segs.map(s =>
+      '<div class="dk"><span class="dk-c" style="background:' + s.c + '"></span>' +
+      '<span class="dk-n">' + s.n + '</span><span class="dk-v">' + s.v + '</span></div>').join('') +
+    '</div></div>';
+}
+
+function renderAudits() {
+  const el = document.getElementById('view-audits');
+  if (!el) return;
+
+  // Must read allAudits, not auditIssues: the sprint column query is filtered by
+  // `sprint in openSprints()`, which silently drops future sprints and anything
+  // with no sprint at all - exactly the tickets this view exists to surface.
+  const all = allAudits.length ? allAudits : auditIssues;
+  if (!all.length) { el.innerHTML = '<div class="state-msg">No audit data</div>'; return; }
+
+  const open   = all.filter(i => isOpenAudit(i.fields));
+  const closed = all.filter(i => !isOpenAudit(i.fields));
+
+  /* --- request source --- */
+  let cl = 0, intl = 0, unset = 0;
+  open.forEach(function (i) {
+    const t = auditType(i.fields);
+    if (t === 'Client') cl++; else if (t === 'Internal') intl++; else unset++;
+  });
+  const known = cl + intl;
+  const pctCl = known ? Math.round(cl / known * 100) : 0;
+  const unsetAll = all.filter(i => !auditType(i.fields)).length;
+
+  /* --- aging --- */
+  const ages = open.map(i => ageDays(i.fields)).sort((a, b) => a - b);
+  const med  = ages.length ? ages[Math.floor(ages.length / 2)] : 0;
+  const over = ages.filter(a => a > 100).length;
+  const ageSegs = [
+    { n: 'Under 30 days',   v: ages.filter(a => a < 30).length,               c: '#4caf7d' },
+    { n: '30 to 99 days',   v: ages.filter(a => a >= 30 && a < 100).length,   c: '#d9a441' },
+    { n: '100 to 199 days', v: ages.filter(a => a >= 100 && a < 200).length,  c: '#e07a5c' },
+    { n: '200 days plus',   v: ages.filter(a => a >= 200).length,             c: '#e05c5c' }
+  ];
+
+  /* --- program progress --- */
+  const progSegs = [
+    { n: 'Still open',  v: open.length,   c: '#4f9bd9' },
+    { n: 'Delivered',   v: closed.length, c: '#4caf7d' }
+  ];
+
+  /* --- sprint columns --- */
+  const groups = {};
+  open.forEach(function (i) {
+    const k = activeSprint(i.fields) || ' No sprint';
+    (groups[k] = groups[k] || []).push(i);
+  });
+  const cols = Object.keys(groups).sort().map(function (n) {
+    const loose = n.charAt(0) === ' ';
+    const list  = groups[n].slice().sort((a, b) => ageDays(b.fields) - ageDays(a.fields));
+    return '<div class="spcol' + (loose ? ' loose' : '') + '">' +
+      '<div class="spcol-h"><div class="spcol-t">' + (loose ? 'Not in a sprint' : n) + '</div>' +
+      '<div class="spcol-n">' + list.length + '</div></div>' +
+      '<div class="spcol-b">' + list.map(miniHTML).join('') + '</div></div>';
+  }).join('');
+
+  /* --- workload (bars: a donut would imply these are parts of one thing) --- */
+  const by = {};
+  open.forEach(function (i) {
+    const a = (i.fields.assignee && i.fields.assignee.displayName) || 'Unassigned';
+    by[a] = (by[a] || 0) + 1;
+  });
+  const rows = Object.entries(by).sort((a, b) => b[1] - a[1]);
+  const max  = rows.length ? rows[0][1] : 0;
+
+  el.innerHTML =
+    '<h3 class="av-h">Accessibility audits</h3>' +
+
+    '<div class="kpis">' +
+      '<div class="kpi"><div class="kpi-v">' + open.length + '</div><div class="kpi-l">Open now</div></div>' +
+      '<div class="kpi"><div class="kpi-v" style="color:var(--teal)">' + pctCl + '%</div><div class="kpi-l">Client driven</div></div>' +
+      '<div class="kpi"><div class="kpi-v" style="color:' + (over ? '#e05c5c' : 'inherit') + '">' + over + '</div><div class="kpi-l">Over 100 days</div></div>' +
+      '<div class="kpi"><div class="kpi-v">' + med + '<span class="kpi-u">d</span></div><div class="kpi-l">Median age</div></div>' +
+      '<div class="kpi"><div class="kpi-v">' + closed.length + '</div><div class="kpi-l">Delivered</div></div>' +
+      '<div class="kpi"><div class="kpi-v" style="color:#d9a441">' +
+        open.filter(i => blockers(i.fields).length).length + '</div><div class="kpi-l">With dependencies</div></div>' +
+    '</div>' +
+
+    '<div class="donuts">' +
+      '<div class="card"><h3 class="av-h">Why audits happen</h3><div class="av-s">Open audits by request source</div>' +
+        donut([{ n: 'Client asked', v: cl, c: '#2ec4b6' }, { n: 'Internal', v: intl, c: '#d9a441' }]
+              .concat(unset ? [{ n: 'Not set', v: unset, c: '#6b7480' }] : []),
+              pctCl + '%', 'client', 150) + '</div>' +
+      '<div class="card"><h3 class="av-h">Aging</h3><div class="av-s">How long open audits have waited</div>' +
+        donut(ageSegs, med + 'd', 'median', 150) + '</div>' +
+      '<div class="card"><h3 class="av-h">Program</h3><div class="av-s">Since March 2026, when audit tracking began</div>' +
+        donut(progSegs, (all.length ? Math.round(closed.length / all.length * 100) : 0) + '%', 'delivered', 150) + '</div>' +
+      '<div class="card"><h3 class="av-h">Workload</h3><div class="av-s">Open audits per assignee</div>' +
+        barRows(rows, max, ['#2ec4b6', '#4f9bd9', '#7a6fd0', '#d9a441', '#e07a5c', '#9aa4ae']) +
+      '</div>' +
+    '</div>' +
+
+    '<h3 class="av-h" style="margin-top:22px">Queue by sprint</h3>' +
+    '<div class="av-s">Oldest first within each sprint</div>' +
+    '<div class="sprintcols">' + cols + '</div>' +
+    '<div class="card" style="margin-top:22px"><h3 class="av-h">Open dependencies</h3>' +
+      '<div class="av-s">Audits proceed regardless. These are fixes that must land before every task on the audit can close - the ones at the top unblock the most work.</div>' +
+      (function () {
+        const tally = {};
+        open.forEach(function (i) {
+          blockers(i.fields).forEach(function (b) {
+            (tally[b.key] = tally[b.key] || { status: b.status, libs: [] }).libs.push(libName(i.fields.summary));
+          });
+        });
+        const list = Object.entries(tally).sort((a, b) => b[1].libs.length - a[1].libs.length);
+        if (!list.length) return '<div class="av-s">No outstanding dependencies.</div>';
+        return '<div class="blocktable">' + list.map(function (e) {
+          return '<div class="blkrow" onclick="openTicket(\'' + e[0] + '\')">' +
+            '<span class="blk-k">' + e[0] + '</span>' +
+            '<span class="blk-s">' + e[1].status + '</span>' +
+            '<span class="blk-n">' + e[1].libs.length + '</span>' +
+            '<span class="blk-l">' + e[1].libs.join(', ') + '</span></div>';
+        }).join('') + '</div>';
+      })() +
+    '</div>' +
+
+    (unsetAll
+      ? '<div class="caveat"><b>' + unsetAll + ' audit' + (unsetAll === 1 ? ' has' : 's have') + ' no request source recorded.</b> ' +
+        'The Audit type field was added on 11 Aug 2026, so any audit not yet backfilled is left out of the client-driven figure rather than assumed either way.</div>'
+      : '');
+}
+
+let currentView = 'sprint';
+function setView(v) {
+  currentView = v;
+  document.body.classList.toggle('view-audits', v === 'audits');
+  ['sprint', 'audits'].forEach(function (n) {
+    const b = document.getElementById('vt-' + n);
+    if (b) b.classList.toggle('active', n === v);
+  });
+  try { localStorage.setItem('lm_dash_view', v); } catch (e) {}
+}
+try {
+  const savedView = localStorage.getItem('lm_dash_view');
+  if (savedView && savedView !== 'sprint') setView(savedView);
+} catch (e) {}
+
+document.getElementById('version-badge').textContent = VERSION;
 </script>
 </body>
 </html>
